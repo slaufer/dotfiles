@@ -1,0 +1,6 @@
+hardstatus on
+hardstatus alwayslastline
+hardstatus string "%{wk}%-w%{ck}[%{wk}%n %t%{ck}]%{wk}%+w%=%H %{ck}[%{wk}%C %A%{ck}]%{dd}"
+attrcolor b ".I"
+termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E38;5;%dm'
+defbce "on"
