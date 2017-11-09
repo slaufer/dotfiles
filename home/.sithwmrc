@@ -1,0 +1,172 @@
+# sithwm keybinds
+# created: slaufer 2010-03-01
+# updated: slaufer 2013-10-16
+
+#############
+# root menu #
+#############
+
+cmd "lilyterm" "lilyterm -s"
+cmd "-----" "true"
+menu "Devel"
+	cmd "Eclipse" "/home/slaufer/eclipse/eclipse"
+end
+menu "Internet"
+	cmd "Chromium" "chromium"
+	cmd "Evolution" "evolution"
+	cmd "Hipchat" "hipchat"
+	cmd "Icedove" "icedove"
+	cmd "Iceweasel" "iceweasel"
+	cmd "Pidgin" "pidgin"
+end
+menu "Media"
+		cmd "Audacious" "audacious"
+		cmd "DeaDBeeF" "/opt/deadbeef/bin/deadbeef"
+		cmd "GIMP" "gimp"
+		cmd "SMPlayer" "smplayer"
+		cmd "Spotify" "spotify"
+		cmd "VLC" "vlc"
+end
+menu "Office"
+	cmd "AbiWord" "abiword"
+	menu "LibreOffice"
+		cmd "Start Center" "libreoffice" 
+		cmd "Base" "lobase"
+		cmd "Calc" "localc"
+		cmd "Draw" "lodraw"
+		cmd "Impress" "loimpress"
+		cmd "Math" "lomath"
+		cmd "Writer" "lowriter"
+	end
+end
+menu "Utility"
+	menu "Terminals"
+		cmd "GNOME Terminal" "gnome-terminal"
+		cmd "LilyTerm" "lilyterm -s"
+		cmd "Terminology" "terminology"
+		cmd "xterm" "xterm"
+	end
+	cmd "PCManFM" "pcmanfm ~"
+	cmd "Pluma" "pluma"
+end
+cmd "-----" "true"
+cmd "exit" "killall -9 sithwm"
+
+###############
+# app hotkeys #
+###############
+
+# spawn a terminal, win+t
+key std		e		sh -c "pcmanfm ~"
+key std		t		sh -c "lilyterm -s"
+
+# spawn a browser, win+b
+key std		b		sh -c firefox
+key std,shift	b	sh -c chromium
+
+################
+# app settings #
+################
+
+app stalonetray
+sticky
+
+###############
+# keybindings #
+###############
+
+# Raise and move window, win+mouse1
+key std		Pointer_Button1	drag,raise
+
+# Raise and resize window, win+mouse3
+key std		Pointer_Button3	drag,raise				1
+
+# Open menu, win+enter
+key std		Return		menu					-1
+
+# Change workspace, win+[up,down,left,right]
+key std		Left		pan,view,popup				-2	0
+key std		Right		pan,view,popup				2	0
+key std		Up		pan,view,popup				0	-4
+key std		Down		pan,view,popup				0	4
+
+# Cycle focus and raise, win+tab or win+shift+tab
+key std		Tab		next,focus,raise,popup,mouse
+key std,shift	Tab		next,focus,raise,popup,mouse	1
+
+# Resize focused window, win+alt+[up,down,left,right]
+key std,mod1	Up		resize,raise,mouse			0	-16
+key std,mod1	Down		resize,raise,mouse			0	16
+key std,mod1	Left		resize,raise,mouse			-16	0
+key std,mod1	Right		resize,raise,mouse			16	0
+
+# Move focused window, win+shift+[up,down,left,right]
+key std,shift	Up		move,raise,mouse			0	-16
+key std,shift	Down		move,raise,mouse			0	16
+key std,shift	Left		move,raise,mouse			-16	0
+key std,shift	Right		move,raise,mouse			16	0
+
+# Move focused window to another workspace, win+ctrl+alt+[up,down,left,right]
+key std,control,mod1	Left		move,view				-1	0
+key std,control,mod1	Right		move,view				1	0
+key std,control,mod1	Up		move,view				0	-1
+key std,control,mod1	Down		move,view				0	1
+
+# kill window, win+w
+key std		w		kill
+
+# kill window process, win+k
+key std		k		kill,abs
+
+# maximize window, win+a
+key std		a		maxim,raise,mouse
+
+# make window sticky, win+f
+key std		f		fix
+
+# win+tab and win+shift+tab only cycle in current view
+#xact enter,raise
+xact next,local
+
+lock "true"
+
+# snap windows to edges
+snap 32
+
+# snap windows to windows
+swindow 1
+
+# draw an outline when dragging/resizing
+nosoliddrag
+
+# caption timeout: .25 second
+pt1 16
+
+# popup timeout: 1 second
+pt2 64
+
+# menu timeout: 4 seconds
+pt3 256
+
+# menu/popup background
+cb "black"
+
+# caption background
+cc "black"
+
+# unfocused border 
+ce "gray"
+
+# focused border
+cf "#9999ff"
+
+# menu hilight
+cg "#9999ff"
+
+# popup hilight
+ch "#9999ff"
+
+# text and foreground
+ci "white"
+
+popup =320x320+672+380 256 0

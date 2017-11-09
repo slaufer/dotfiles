@@ -30,7 +30,7 @@ function _VEXING_col {
 
 function _VEXING_color_dir {
 	# convert $HOME to ~
-	local DIR="${1/$HOME/~}"
+	local DIR="${1/$HOME/\~}"
 	DIR="$(echo "$DIR" | tail -c "$_VEXING_DIR_WIDTH")"
 	DIR="${DIR//\//$(_VEXING_col 8 69 0)/$(_VEXING_col 8 44 0)}"
 	echo "$DIR"
