@@ -1,2 +1,2 @@
-# .bash_profile
-source ~/.bashrc
+#!/bin/bash
+. "$HOME/.bashrc"

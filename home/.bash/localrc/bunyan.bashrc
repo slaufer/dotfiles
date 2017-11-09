@@ -1,4 +1,6 @@
 #!/bin/bash
+[[ "$TERM" = "xterm" ]] && export TERM="xterm-256color"
+
 export JAVA_HOME='/usr/lib/jvm/java-7-openjdk-amd64'
 export PLAY2_HOME="$HOME/apps/play-2.2.0"
 export MAVEN_HOME="$HOME/apps/maven"

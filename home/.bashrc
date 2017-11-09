@@ -4,10 +4,10 @@
 [[ $- != *i* ]] && return
 
 # Source global definitions
-[[ /etc/bashrc ]] && source /etc/bashrc
+[[ -f "/etc/bashrc" ]] && . "/etc/bashrc"
 
 # set up path
-export PATH=$PATH:$HOME/bin:$HOME/.bin
+export PATH=$PATH:$HOME/bin
 
 # infinite history
 export HISTSIZE=""
@@ -24,15 +24,15 @@ alias grep="grep --color=auto"
 alias ls="ls -hF --color=auto"
 
 # VAM-specific env vars
-echo "$HOSTNAME" | grep '^vxm[0-9]\{0,\}\.' > /dev/null && source "~/.bash/vamhost.bashrc"
-
-# shell prompt
-source ~/.bash/vexing.sh
-
-# homeshick
-source "$HOME/.homesick/repos/homeshick/homeshick.sh"
+echo "$HOSTNAME" | grep '^vam[0-9]\{0,\}\.' > /dev/null && . "~/.bash/vamhost.bashrc"
 
 # local bashrc (if any)
-[[ -f "~/.bash/${HOSTNAME}.bashrc" ]] && source "~/.bash/${HOSTNAME}.bashrc"
+[[ -e "$HOME/.bash/localrc/${HOSTNAME}.bashrc" ]] && . "$HOME/.bash/localrc/${HOSTNAME}.bashrc"
+
+# homeshick
+. "$HOME/.homesick/repos/homeshick/homeshick.sh"
+
+# shell prompt
+. ~/.bash/prompt/vexing.sh
 
 return 0
