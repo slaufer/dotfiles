@@ -22,6 +22,7 @@ set nowrap
 set nu
 set hls
 set sc
+set textwidth=0
 set backspace=2
 set tabstop=4
 set shiftwidth=4

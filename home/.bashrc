@@ -12,6 +12,10 @@ export PATH=$PATH:$HOME/bin
 # infinite history
 export HISTSIZE=""
 
+#pager
+export LESS="-RFXS"
+export PAGER="less"
+
 # dircolors
 eval "$(dircolors -b)"
 
