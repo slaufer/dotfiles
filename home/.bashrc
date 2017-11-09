@@ -21,21 +21,18 @@ alias gl='git log --graph --all --pretty="%Cgreen%h %Cred%an: %Creset%s"'
 alias noeol="perl -pi -e 'chomp if eof'"
 alias mkdir="mkdir -p"
 alias grep="grep --color=auto"
-alias 
-
-# Java development env vars
-
+alias ls="ls -hF --color=auto"
 
 # VAM-specific env vars
-if echo $HOSTNAME | grep '^vxm[0-9]\{0,\}\.' > /dev/null; then
-	echo "Loading VAM configs"
-	. $HOME/.vamrc
-	PATH="$HOME/perl5/bin${PATH:+:${PATH}}"; export PATH;
-	PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-	PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-	PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
-	PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
-fi
+echo "$HOSTNAME" | grep '^vxm[0-9]\{0,\}\.' > /dev/null && source "~/.bash/vamhost.bashrc"
 
+# shell prompt
 source ~/.bash/vexing.sh
+
+# homeshick
 source "$HOME/.homesick/repos/homeshick/homeshick.sh"
+
+# local bashrc (if any)
+[[ -f "~/.bash/${HOSTNAME}.bashrc" ]] && source "~/.bash/${HOSTNAME}.bashrc"
+
+return 0
