@@ -32,6 +32,9 @@ alias ls="ls -hF --color=auto"
 # homeshick
 . "$HOME/.homesick/repos/homeshick/homeshick.sh"
 
+# mini scripts
+. ~/.bash/miniscripts.sh
+
 # shell prompt
 . ~/.bash/prompt/vexing.sh
 
