@@ -24,7 +24,7 @@ alias grep="grep --color=auto"
 alias ls="ls -hF --color=auto"
 
 # VAM-specific env vars
-echo "$HOSTNAME" | grep '^vam[0-9]\{0,\}\.' > /dev/null && . "~/.bash/vamhost.bashrc"
+echo "$HOSTNAME" | grep '^vam[0-9]\{0,\}\.' > /dev/null && . "$HOME/.bash/vamhost.bashrc"
 
 # local bashrc (if any)
 [[ -e "$HOME/.bash/localrc/${HOSTNAME}.bashrc" ]] && . "$HOME/.bash/localrc/${HOSTNAME}.bashrc"
