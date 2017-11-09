@@ -1,4 +1,4 @@
-# .bashrc
+#!/bin/bash
 
 # if this shell isn't interactive, bail out
 [[ $- != *i* ]] && return
@@ -13,7 +13,7 @@ export PATH=$PATH:$HOME/bin
 export HISTSIZE=""
 
 # dircolors
-which dircolors > /dev/null && eval "$(dircolors -b)"
+eval "$(dircolors -b)"
 
 # aliases
 alias gup='git fetch && git pull origin $(git rev-parse --abbrev-ref HEAD)'
@@ -24,7 +24,7 @@ alias grep="grep --color=auto"
 alias ls="ls -hF --color=auto"
 
 # VAM-specific env vars
-echo "$HOSTNAME" | grep '^vam[0-9]\{0,\}\.' > /dev/null && . "$HOME/.bash/vamhost.bashrc"
+[[ $HOSTNAME =~ ^vim[0-9]+\. ]] && . "$HOME/.bash/vamhost.bashrc"
 
 # local bashrc (if any)
 [[ -e "$HOME/.bash/localrc/${HOSTNAME}.bashrc" ]] && . "$HOME/.bash/localrc/${HOSTNAME}.bashrc"
