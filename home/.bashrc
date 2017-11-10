@@ -9,9 +9,6 @@
 # set up path
 export PATH=$PATH:$HOME/bin
 
-# infinite history
-export HISTSIZE=""
-
 #pager
 export LESS="-RFXS"
 export PAGER="less"
@@ -41,5 +38,10 @@ alias ls="ls -hF --color=auto"
 
 # shell prompt
 . ~/.bash/prompt/vexing.sh
+
+# history settings
+export HISTSIZE=""
+shopt -s histappend
+export PROMPT_COMMAND="history -a; history -n; $PROMPT_COMMAND"
 
 return 0
