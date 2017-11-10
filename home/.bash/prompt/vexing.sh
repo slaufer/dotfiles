@@ -21,19 +21,25 @@ _VEXING_DIR_WIDTH=70
 # - col 24 <fg red> <fg green> <fg blue> <bg red> <bg green> <bg blue>
 #     set 24-bit background color; value range is 0-255
 
-function _VEXING_col {
-	[ "$1" == "r" ] && { echo "\[\e[0m\]"; return; }
-	[ "$1" == "3" ] && { echo "\[\e[3${2};4${3}m\]"; return; }
-	[ "$1" == "8" ] && { echo "\[\e[38;5;${2}m\e[48;5;${3}m\]"; return; }
-	[ "$1" == "24" ] && { echo "\[\e[38;2;${2};${3};${4}m\e[48;2;${5};${6}${7}m\]"; return; }
-}
+_VEXING_COLORS=(
+	"\[\e[0m\]"                  # 0: reset
+	"\[\e[38;5;25m\e[48;5;0m\]"  # 1: dark blue
+	"\[\e[38;5;35m\e[48;5;0m\]"  # 2: sea green
+	"\[\e[38;5;39m\e[48;5;0m\]"  # 3: bright green
+	"\[\e[38;5;44m\e[48;5;0m\]"  # 4: bright cyan
+	"\[\e[38;5;45m\e[48;5;0m\]"  # 5: sky blue
+	"\[\e[38;5;69m\e[48;5;0m\]"  # 6: light purple-blue
+	"\[\e[38;5;160m\e[48;5;0m\]" # 7: dark red
+	"\[\e[38;5;172m\e[48;5;0m\]" # 8: burnt orange
+	"\[\e[38;5;252m\e[48;5;0m\]" # 9: light gray
+)
 
 function _VEXING_color_dir {
 	# convert $HOME to ~
 	local TILDE="~"
 	local DIR="${1/$HOME/$TILDE}"
 	DIR="$(echo "$DIR" | tail -c "$_VEXING_DIR_WIDTH")"
-	DIR="${DIR//\//$(_VEXING_col 8 69 0)/$(_VEXING_col 8 44 0)}"
+	DIR="${DIR//\//${_VEXING_COLORS[6]}/${_VEXING_COLORS[4]}}"
 	echo "$DIR"
 }
 
@@ -43,63 +49,61 @@ function _VEXING_color_dir {
 
 # 256-color prompt for xterm-like terminals
 function _VEXING_prompt_8bit {
-	local EXIT="$?"
+	echo $?
 	local PROMPT=""
-	local SPACER="$(_VEXING_col r) "
 	
-	# status line
-	PROMPT="${PROMPT}$(_VEXING_col 8 25 0)[$(_VEXING_col 8 39 0)$(date "+%l")$(_VEXING_col 8 69 0):$(_VEXING_col 8 39 0)$(date "+%M%P")$(_VEXING_col 8 25 0)]" # clock
-	PROMPT="${PROMPT} $(_VEXING_col 8 25 0)[$(_VEXING_col 8 44 0)$(_VEXING_color_dir "$PWD")$(_VEXING_col 8 25 0)]" # working directory
+	# status line clock
+	PROMPT+="${_VEXING_COLORS[1]}[${_VEXING_COLORS[3]}$(date "+%l")${_VEXING_COLORS[6]}:${_VEXING_COLORS[3]}$(date "+%M%P")${_VEXING_COLORS[1]}]"
+	# status line working directory
+	PROMPT+=" ${_VEXING_COLORS[1]}[${_VEXING_COLORS[4]}$(_VEXING_color_dir "$PWD")${_VEXING_COLORS[1]}]"
 
 
 	# git status
 	if [[ -z "$_VEXING_NOGIT" ]]; then
-		local GITSTATUS="$(git status -s 2> /dev/null)"
+		# either a status (possibly empty) or the return code
+		local GITSTATUS="$(git status -s 2> /dev/null || echo $?)"
+	else
+		# just set it to the failure return code
+		local GITSTATUS=128
+	fi
 
-		if [[ ! -z "$GITSTATUS" ]]; then
-			local GITSTATUS="$(git status -s 2> /dev/null)"
-			local UNTRACKED="$(grep "^[ ?][ ?]" <<< "$GITSTATUS" | wc -l)"
-			local UNSTAGED="$(grep "^ [MADRC]" <<< "$GITSTATUS" | wc -l)"
-			local STAGED="$(grep "^[MADRC]" <<< "$GITSTATUS" | wc -l)"
+	if [[ "$GITSTATUS" != "128" ]]; then
+		local UNTRACKED="$(grep "^[ ?][ ?]" -c <<< "$GITSTATUS")"
+		local UNSTAGED="$(grep "^ [MADRC]" -c <<< "$GITSTATUS")"
+		local STAGED="$(grep "^[MADRC]" -c <<< "$GITSTATUS")"
 
 
-			local GIT_COLOR="$(_VEXING_col 8 35 0)"
-			[ "$UNSTAGED" -gt "0" ] || [ "$UNTRACKED" -gt "0" ] && local GIT_COLOR="$(_VEXING_col 8 160 0)" 
-			[ "$STAGED" -gt "0" ] && local GIT_COLOR="$(_VEXING_col 8 172 0)" 
-			PROMPT="${PROMPT} $(_VEXING_col 8 25 0)[${GIT_COLOR}$(git rev-parse --abbrev-ref HEAD)$(_VEXING_col r)"
+		local GIT_COLOR="${_VEXING_COLORS[2]}"
+		(( $UNSTAGED > 0 )) || (( $UNTRACKED > 0 )) && local GIT_COLOR="${_VEXING_COLORS[7]}" 
+		(( $STAGED > 0 ))  && local GIT_COLOR="${_VEXING_COLORS[8]}" 
+		PROMPT+=" ${_VEXING_COLORS[1]}[${GIT_COLOR}$(git rev-parse --abbrev-ref HEAD)${_VEXING_colors[0]}"
 
-			[ "$UNTRACKED" -gt "0" ] &&	PROMPT="${PROMPT}$(_VEXING_col 8 160 0) ${UNTRACKED}$(_VEXING_col r)" 
-			[ "$UNSTAGED" -gt "0" ] && PROMPT="${PROMPT}$(_VEXING_col 8 172 0) ${UNSTAGED}$(_VEXING_col r)"
-			[ "$STAGED" -gt "0" ] && PROMPT="${PROMPT}$(_VEXING_col 8 35 0) ${STAGED}$(_VEXING_col r)"
+		[ "$UNTRACKED" -gt "0" ] &&	PROMPT+="${_VEXING_COLORS[7]} ${UNTRACKED}" 
+		[ "$UNSTAGED" -gt "0" ] && PROMPT+="${_VEXING_COLORS[8]} ${UNSTAGED}"
+		[ "$STAGED" -gt "0" ] && PROMPT+="${_VEXING_COLORS[2]} ${STAGED}"
 
-			PROMPT="${PROMPT}$(_VEXING_col 8 25 0)]"
-		fi
+		PROMPT+="${_VEXING_COLORS[1]}]"
 	fi
 
 	# exit code (if non-zero)
-	if [ "$EXIT" -ne "0" ]; then
-		PROMPT="${PROMPT} $(_VEXING_col 8 25 0)[$(_VEXING_col 8 160 0)${EXIT}$(_VEXING_col 8 25 0)]" # exit code
-	fi
+	#if (( $EXIT != 0 )); then
+	#	PROMPT+="${_VEXING_COLORS[1]}[${_VEXING_COLORS[7]}${EXIT}${_VEXING_COLORS[1]}]" # exit code
+	#fi
 
-	PROMPT="${PROMPT}\n$(_VEXING_col 8 25 0)[$(_VEXING_col 8 252 0)#\#$(_VEXING_col r)$(_VEXING_col 8 25 0)] " # command number
+	# command count
+	PROMPT+="\n${_VEXING_COLORS[1]}[${_VEXING_COLORS[9]}#\#${_VEXING_colors[0]}${_VEXING_COLORS[1]}] " # command number
 
-
-	# prompt line
-	PROMPT="${PROMPT}$(_VEXING_col 8 25 0)$(_VEXING_col 8 39 0)\u$(_VEXING_col 8 69 0)@$(_VEXING_col 8 39 0)\h$(_VEXING_col 8 25 0) $(_VEXING_col 8 45 0)\$ $(_VEXING_col r)"
+	# user, host and prompt
+	PROMPT+="${_VEXING_COLORS[1]}${_VEXING_COLORS[3]}\u${_VEXING_COLORS[6]}@${_VEXING_COLORS[3]}\h${_VEXING_COLORS[1]} ${_VEXING_COLORS[5]}\$ ${_VEXING_COLORS[0]}"
 	
-	PS1="$(echo -e $PROMPT)"
-}
-
-# super basic prompt for older terminals
-function _VEXING_prompt_mono {
-	PS1='($?) \u@\h \w \$ '
+	PS1="$(echo -e "$PROMPT")"
 }
 
 # only activate the fancy prompt if this is a 256-color terminal
 _VEXING_COLOR_COUNT="$(tput colors)"
 if [ "$_VEXING_COLOR_COUNT" -ge "256" ]; then
-	export PROMPT_COMMAND=_VEXING_prompt_8bit
+	export PROMPT_COMMAND="_VEXING_prompt_8bit"
 else
 	echo "VEXING: 256 color mode unavailable, using mono fallback prompt"
-	export PROMPT_COMMAND=_VEXING_prompt_mono
+	export PS1='($?) \u@\h \w \$ '
 fi
