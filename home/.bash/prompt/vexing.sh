@@ -53,23 +53,27 @@ function _VEXING_prompt_8bit {
 
 
 	# git status
-	if git status > /dev/null 2> /dev/null; then
+	if [[ -z "$_VEXING_NOGIT" ]]; then
 		local GITSTATUS="$(git status -s 2> /dev/null)"
-		local UNTRACKED="$(echo "$GITSTATUS" | grep "^[ ?][ ?]" | wc -l)"
-		local UNSTAGED="$(echo "$GITSTATUS" | grep "^ [MADRC]" | wc -l)"
-		local STAGED="$(echo "$GITSTATUS" | grep "^[MADRC]" | wc -l)"
+
+		if [[ ! -z "$GITSTATUS" ]]; then
+			local GITSTATUS="$(git status -s 2> /dev/null)"
+			local UNTRACKED="$(grep "^[ ?][ ?]" <<< "$GITSTATUS" | wc -l)"
+			local UNSTAGED="$(grep "^ [MADRC]" <<< "$GITSTATUS" | wc -l)"
+			local STAGED="$(grep "^[MADRC]" <<< "$GITSTATUS" | wc -l)"
 
 
-		local GIT_COLOR="$(_VEXING_col 8 35 0)"
-		[ "$UNSTAGED" -gt "0" ] || [ "$UNTRACKED" -gt "0" ] && local GIT_COLOR="$(_VEXING_col 8 160 0)" 
-		[ "$STAGED" -gt "0" ] && local GIT_COLOR="$(_VEXING_col 8 172 0)" 
-		PROMPT="${PROMPT} $(_VEXING_col 8 25 0)[${GIT_COLOR}$(git rev-parse --abbrev-ref HEAD)$(_VEXING_col r)"
+			local GIT_COLOR="$(_VEXING_col 8 35 0)"
+			[ "$UNSTAGED" -gt "0" ] || [ "$UNTRACKED" -gt "0" ] && local GIT_COLOR="$(_VEXING_col 8 160 0)" 
+			[ "$STAGED" -gt "0" ] && local GIT_COLOR="$(_VEXING_col 8 172 0)" 
+			PROMPT="${PROMPT} $(_VEXING_col 8 25 0)[${GIT_COLOR}$(git rev-parse --abbrev-ref HEAD)$(_VEXING_col r)"
 
-		[ "$UNTRACKED" -gt "0" ] &&	PROMPT="${PROMPT}$(_VEXING_col 8 160 0) ${UNTRACKED}$(_VEXING_col r)" 
-		[ "$UNSTAGED" -gt "0" ] && PROMPT="${PROMPT}$(_VEXING_col 8 172 0) ${UNSTAGED}$(_VEXING_col r)"
-		[ "$STAGED" -gt "0" ] && PROMPT="${PROMPT}$(_VEXING_col 8 35 0) ${STAGED}$(_VEXING_col r)"
+			[ "$UNTRACKED" -gt "0" ] &&	PROMPT="${PROMPT}$(_VEXING_col 8 160 0) ${UNTRACKED}$(_VEXING_col r)" 
+			[ "$UNSTAGED" -gt "0" ] && PROMPT="${PROMPT}$(_VEXING_col 8 172 0) ${UNSTAGED}$(_VEXING_col r)"
+			[ "$STAGED" -gt "0" ] && PROMPT="${PROMPT}$(_VEXING_col 8 35 0) ${STAGED}$(_VEXING_col r)"
 
-		PROMPT="${PROMPT}$(_VEXING_col 8 25 0)]"
+			PROMPT="${PROMPT}$(_VEXING_col 8 25 0)]"
+		fi
 	fi
 
 	# exit code (if non-zero)
