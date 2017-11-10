@@ -42,6 +42,6 @@ alias ls="ls -hF --color=auto"
 # history settings
 export HISTSIZE=""
 shopt -s histappend
-export PROMPT_COMMAND="history -a; history -n; $PROMPT_COMMAND"
+export PROMPT_COMMAND="$PROMPT_COMMAND; history -a; history -n"
 
 return 0
