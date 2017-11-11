@@ -17,14 +17,14 @@ _VEXING_DIR_WIDTH=70
 _VEXING_COLORS=(
 	'\[\e[0m\]'        # 0: reset
 	"\[\e[38;5;25m\]"  # 1: Brackets, dark blue
-	"\[\e[38;5;35m\]"  # 2: Git clean branch/staged changes, sea green
+	"\[\e[38;5;35m\]"  # 2: Git unclean branch/staged changes, sea green
 	"\[\e[38;5;39m\]"  # 3: Clock and user@host foreground, dark cyan
 	"\[\e[38;5;44m\]"  # 4: Directory foreground, bright cyan
 	"\[\e[38;5;45m\]"  # 5: Prompt ($/#), sky blue
 	"\[\e[38;5;69m\]"  # 6: Clock, directory and user@host background, denim blue
 	"\[\e[38;5;160m\]" # 7: Git unclean branch/unstaged changes, red
 	"\[\e[38;5;172m\]" # 8: Git unstaged, yellow
-	"\[\e[38;5;252m\]" # 9: Command count, light gray
+	"\[\e[38;5;252m\]" # 9: Git clean branch and command count, light gray
 )
 
 ####################
@@ -37,7 +37,7 @@ function _VEXING_color_dir {
 	local dir=$(dirs +0)
 
 	# trim directory
-	(( ${#dir} > $_VEXING_DIR_WIDTH )) && dir=${dir: -$_VEXING_DIR_WIDTH}
+	(( ${#dir} > _VEXING_DIR_WIDTH )) && dir=${dir: -$_VEXING_DIR_WIDTH}
 
 	# color directory
 	dir=${dir//\//${_VEXING_COLORS[6]}/${_VEXING_COLORS[4]}}
@@ -71,24 +71,25 @@ function _VEXING_prompt_8bit {
 		git_exit=$?
 	fi
 
-	if (( $git_exit == 0 )); then
+	if (( git_exit == 0 )); then
 		# figure out status counts
 		local unstaged=$(grep -E '^.[MADRC?]' -c <<< "$git_status")
 		local staged=$(grep '^[MADRC]' -c <<< "$git_status")
 
 		# figure out how to color the branch name
-		local branch_color
-		(( unstaged + staged > 0 )) && branch_color=${_VEXING_COLORS[7]} || branch_color=${_VEXING_COLORS[2]}
+		local branch_color=${_VEXING_COLORS[9]}
+		(( staged > 0 )) && branch_color=${_VEXING_COLORS[2]} 
+		(( unstaged > 0 )) && branch_color=${_VEXING_COLORS[7]}
 		prompt+=" ${_VEXING_COLORS[1]}[${branch_color}$(git rev-parse --abbrev-ref HEAD)${_VEXING_colors[0]}"
 
-		[[ $unstaged -gt 0 ]] && prompt+="${_VEXING_COLORS[7]} ${unstaged}"
-		[[ $staged -gt 0 ]] && prompt+="${_VEXING_COLORS[2]} ${staged}"
+		(( unstaged > 0 )) && prompt+="${_VEXING_COLORS[7]} ${unstaged}"
+		(( staged > 0 )) && prompt+="${_VEXING_COLORS[2]} ${staged}"
 
 		prompt+="${_VEXING_COLORS[1]}]"
 	fi
 
 	# exit code (if non-zero)
-	if (( $exit != 0 )); then
+	if (( exit != 0 )); then
 		prompt+=" ${_VEXING_COLORS[1]}[${_VEXING_COLORS[7]}${exit}${_VEXING_COLORS[1]}]"
 	fi
 
