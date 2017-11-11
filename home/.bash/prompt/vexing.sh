@@ -16,15 +16,15 @@ _VEXING_DIR_WIDTH=70
 # These color codes have to be properly enclosed to prevent wrapping issues
 _VEXING_COLORS=(
 	'\[\e[0m\]'                  # 0: reset
-	"\[\e[38;5;25m\e[48;5;0m\]"  # 1: Brackets, dark blue
-	"\[\e[38;5;35m\e[48;5;0m\]"  # 2: Git clean/staged, sea green
-	"\[\e[38;5;39m\e[48;5;0m\]"  # 3: Clock and user@host foreground, dark cyan
-	"\[\e[38;5;44m\e[48;5;0m\]"  # 4: Directory foreground, bright cyan
-	"\[\e[38;5;45m\e[48;5;0m\]"  # 5: Prompt ($/#), sky blue
-	"\[\e[38;5;69m\e[48;5;0m\]"  # 6: Clock, directory and user@host background, denim blue
-	"\[\e[38;5;160m\e[48;5;0m\]" # 7: Git untracked, red
-	"\[\e[38;5;172m\e[48;5;0m\]" # 8: Git unstaged, burnt orange
-	"\[\e[38;5;252m\e[48;5;0m\]" # 9: Command count, light gray
+	"\[\e[38;5;25m\]"  # 1: Brackets, dark blue
+	"\[\e[38;5;35m\]"  # 2: Git clean/staged, sea green
+	"\[\e[38;5;39m\]"  # 3: Clock and user@host foreground, dark cyan
+	"\[\e[38;5;44m\]"  # 4: Directory foreground, bright cyan
+	"\[\e[38;5;45m\]"  # 5: Prompt ($/#), sky blue
+	"\[\e[38;5;69m\]"  # 6: Clock, directory and user@host background, denim blue
+	"\[\e[38;5;160m\]" # 7: Git untracked, red
+	"\[\e[38;5;172m\]" # 8: Git unstaged, burnt orange
+	"\[\e[38;5;252m\]" # 9: Command count, light gray
 )
 
 ####################
@@ -51,7 +51,9 @@ function _VEXING_color_dir {
 # 256-color prompt for xterm-like terminals
 function _VEXING_prompt_8bit {
 	local EXIT=$?
-	local PROMPT
+
+	# start with a reset
+	local PROMPT=${_VEXING_COLORS[1]}
 	
 	# status line clock
 	local TIME=($(date '+%l %M%P'))
