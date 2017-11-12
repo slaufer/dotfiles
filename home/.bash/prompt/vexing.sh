@@ -5,48 +5,41 @@ if (( $(tput colors) < 256 )); then
 	return
 fi
 
-#################
-# CONFIGURATION #
-#################
-
-# TODO: make this dynamic?
-_VEXING_DIR_WIDTH=70
-
-# Prompt colors
-# These color codes have to be properly enclosed to prevent wrapping issues
-_VEXING_COLORS=(
-	'\[\e[0m\]'        # 0: reset
-	"\[\e[38;5;25m\]"  # 1: Brackets, dark blue
-	"\[\e[38;5;35m\]"  # 2: Git unclean branch/staged changes, sea green
-	"\[\e[38;5;39m\]"  # 3: Clock and user@host foreground, dark cyan
-	"\[\e[38;5;44m\]"  # 4: Directory foreground, bright cyan
-	"\[\e[38;5;45m\]"  # 5: Prompt ($/#), sky blue
-	"\[\e[38;5;69m\]"  # 6: Clock, directory and user@host background, denim blue
-	"\[\e[38;5;160m\]" # 7: Git unclean branch/unstaged changes, red
-	"\[\e[38;5;172m\]" # 8: Git unstaged, yellow
-	"\[\e[38;5;252m\]" # 9: Git clean branch and command count, light gray
-)
-
-####################
-# Prompt Functions #
-####################
-
 # 256-color prompt for xterm-like terminals
-function _VEXING_prompt_8bit {
+function _VEXING_PROMPT {
+	# exit code
 	local exit=$?
 
+	# Prompt colors
+	# These color codes have to be properly enclosed to prevent wrapping issues
+	local COLORS=(
+		'\[\e[0m\]'        # 0: reset
+		'\[\e[38;5;25m\]'  # 1: Brackets, dark blue
+		'\[\e[38;5;35m\]'  # 2: Git unclean branch/staged changes, sea green
+		'\[\e[38;5;39m\]'  # 3: Clock and user@host foreground, dark cyan
+		'\[\e[38;5;44m\]'  # 4: Directory foreground, bright cyan
+		'\[\e[38;5;45m\]'  # 5: Prompt ($/#), sky blue
+		'\[\e[38;5;69m\]'  # 6: Clock, directory and user@host background, denim blue
+		'\[\e[38;5;160m\]' # 7: Git unclean branch/unstaged changes, red
+		'\[\e[38;5;172m\]' # 8: Git unstaged, yellow
+		'\[\e[38;5;252m\]' # 9: Git clean branch and command count, light gray
+	)
+
+	# TODO: make this dynamic?
+	local DIR_WIDTH=70
+
 	# start with a reset
-	local prompt=${_VEXING_COLORS[1]}
+	local prompt=${COLORS[1]}
 	
 	# status line clock
 	local time=($(date '+%l %M%P'))
-	prompt+="${_VEXING_COLORS[1]}[${_VEXING_COLORS[3]}${time[0]}${_VEXING_COLORS[6]}:${_VEXING_COLORS[3]}${time[1]}${_VEXING_COLORS[1]}]"
+	prompt+="${COLORS[1]}[${COLORS[3]}${time[0]}${COLORS[6]}:${COLORS[3]}${time[1]}${COLORS[1]}]"
 
 	# status line working directory
 	local dir=$(dirs +0)
-	(( ${#dir} > _VEXING_DIR_WIDTH )) && dir=${dir: -$_VEXING_DIR_WIDTH}
-	dir=${dir//\//${_VEXING_COLORS[6]}/${_VEXING_COLORS[4]}}
-	prompt+=" ${_VEXING_COLORS[1]}[${_VEXING_COLORS[4]}${dir}${_VEXING_COLORS[1]}]"
+	(( ${#dir} > DIR_WIDTH )) && dir=${dir: -$_VEXING_DIR_WIDTH}
+	dir=${dir//\//${COLORS[6]}/${COLORS[4]}}
+	prompt+=" ${COLORS[1]}[${COLORS[4]}${dir}${COLORS[1]}]"
 
 	# git status
 	# fun fact: "local" has an exit code
@@ -64,31 +57,31 @@ function _VEXING_prompt_8bit {
 		local staged=$(grep '^[MADRC]' -c <<< "$git_status")
 
 		# figure out how to color the branch name
-		local branch_color=${_VEXING_COLORS[9]}
-		(( staged > 0 )) && branch_color=${_VEXING_COLORS[2]} 
-		(( unstaged > 0 )) && branch_color=${_VEXING_COLORS[7]}
-		prompt+=" ${_VEXING_COLORS[1]}[${branch_color}$(git rev-parse --abbrev-ref HEAD)${_VEXING_colors[0]}"
+		local branch_color=${COLORS[9]}
+		(( staged > 0 )) && branch_color=${COLORS[2]} 
+		(( unstaged > 0 )) && branch_color=${COLORS[7]}
+		prompt+=" ${COLORS[1]}[${branch_color}$(git rev-parse --abbrev-ref HEAD)${_VEXING_colors[0]}"
 
-		(( unstaged > 0 )) && prompt+="${_VEXING_COLORS[7]} ${unstaged}"
-		(( staged > 0 )) && prompt+="${_VEXING_COLORS[2]} ${staged}"
+		(( unstaged > 0 )) && prompt+="${COLORS[7]} ${unstaged}"
+		(( staged > 0 )) && prompt+="${COLORS[2]} ${staged}"
 
-		prompt+="${_VEXING_COLORS[1]}]"
+		prompt+="${COLORS[1]}]"
 	fi
 
 	# exit code (if non-zero)
 	if (( exit != 0 )); then
-		prompt+=" ${_VEXING_COLORS[1]}[${_VEXING_COLORS[7]}${exit}${_VEXING_COLORS[1]}]"
+		prompt+=" ${COLORS[1]}[${COLORS[7]}${exit}${COLORS[1]}]"
 	fi
 
 	# command count
-	prompt+="\n${_VEXING_COLORS[1]}[${_VEXING_COLORS[9]}#\#${_VEXING_colors[0]}${_VEXING_COLORS[1]}] " # command number
+	prompt+="\n${COLORS[1]}[${COLORS[9]}#\#${_VEXING_colors[0]}${COLORS[1]}] " # command number
 
 	# user, host and prompt
-	prompt+="${_VEXING_COLORS[3]}\u${_VEXING_COLORS[6]}@${_VEXING_COLORS[3]}\h ${_VEXING_COLORS[1]}${_VEXING_COLORS[5]}\$ ${_VEXING_COLORS[0]}"
+	prompt+="${COLORS[3]}\u${COLORS[6]}@${COLORS[3]}\h ${COLORS[1]}${COLORS[5]}\$ ${COLORS[0]}"
 
 	# interpret color codes and set the prompt	
 	PS1=$(echo -e $prompt)
 }
 
-PROMPT_COMMAND=_VEXING_prompt_8bit
+PROMPT_COMMAND=_VEXING_PROMPT
 
