@@ -28,23 +28,6 @@ _VEXING_COLORS=(
 )
 
 ####################
-# Helper Functions #
-####################
-
-# Colorizes a path, and replaces home with ~
-function _VEXING_color_dir {
-	# get directory with homedir substitution
-	local dir=$(dirs +0)
-
-	# trim directory
-	(( ${#dir} > _VEXING_DIR_WIDTH )) && dir=${dir: -$_VEXING_DIR_WIDTH}
-
-	# color directory
-	dir=${dir//\//${_VEXING_COLORS[6]}/${_VEXING_COLORS[4]}}
-	echo -n $dir
-}
-
-####################
 # Prompt Functions #
 ####################
 
@@ -56,13 +39,17 @@ function _VEXING_prompt_8bit {
 	local prompt=${_VEXING_COLORS[1]}
 	
 	# status line clock
-	local TIME=($(date '+%l %M%P'))
-	prompt+="${_VEXING_COLORS[1]}[${_VEXING_COLORS[3]}${TIME[0]}${_VEXING_COLORS[6]}:${_VEXING_COLORS[3]}${TIME[1]}${_VEXING_COLORS[1]}]"
-	# status line working directory
-	prompt+=" ${_VEXING_COLORS[1]}[${_VEXING_COLORS[4]}$(_VEXING_color_dir "$PWD")${_VEXING_COLORS[1]}]"
+	local time=($(date '+%l %M%P'))
+	prompt+="${_VEXING_COLORS[1]}[${_VEXING_COLORS[3]}${time[0]}${_VEXING_COLORS[6]}:${_VEXING_COLORS[3]}${time[1]}${_VEXING_COLORS[1]}]"
 
+	# status line working directory
+	local dir=$(dirs +0)
+	(( ${#dir} > _VEXING_DIR_WIDTH )) && dir=${dir: -$_VEXING_DIR_WIDTH}
+	dir=${dir//\//${_VEXING_COLORS[6]}/${_VEXING_COLORS[4]}}
+	prompt+=" ${_VEXING_COLORS[1]}[${_VEXING_COLORS[4]}${dir}${_VEXING_COLORS[1]}]"
 
 	# git status
+	# fun fact: "local" has an exit code
 	local git_status git_exit=1
 
 	if [[ -z $_VEXING_NOGIT ]]; then
