@@ -7,7 +7,7 @@ fi
 
 # 256-color prompt for xterm-like terminals
 function _VEXING_PROMPT {
-	# exit code
+	# grab exit code while we can
 	local exit=$?
 
 	# Prompt colors
@@ -69,9 +69,7 @@ function _VEXING_PROMPT {
 	fi
 
 	# exit code (if non-zero)
-	if (( exit != 0 )); then
-		prompt+=" ${COLORS[1]}[${COLORS[7]}${exit}${COLORS[1]}]"
-	fi
+	(( exit != 0 )) && prompt+=" ${COLORS[1]}[${COLORS[7]}${exit}${COLORS[1]}]"
 
 	# command count
 	prompt+="\n${COLORS[1]}[${COLORS[9]}#\#${_VEXING_colors[0]}${COLORS[1]}] " # command number

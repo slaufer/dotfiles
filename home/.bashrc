@@ -37,13 +37,15 @@ alias ls="ls -hF --color=auto"
 . ~/.bash/miniscripts.sh
 
 # shell prompt
+PS1='$? \w \$ '
 . ~/.bash/prompt/vexing.sh
 
 # history settings
 export HISTSIZE=""
 shopt -s histappend
 
-[[ ! -z $PROMPT_COMMAND ]] && OLDPC="${PROMPT_COMMAND};"
-PROMPT_COMMAND="$OLDPC history -a; history -n"
+[[ ! -z $PROMPT_COMMAND ]] && OLDPC="${PROMPT_COMMAND}; "
+PROMPT_COMMAND="${OLDPC}history -a; history -n"
+
 
 return 0
