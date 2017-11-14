@@ -9,15 +9,35 @@ function ack_all {
 	# copy args to a usable variable name. parens are necessary to remind bash this is an array
 	local argv=("${@}")
 	local argc="${#argv[@]}"
-	local argl="$(($argc - 1))"
+	local argl="$((argc - 1))"
 
 	local -a ack_args=("${argv[@]:0:$argl}")
 
 	local -a paths
-	IFS=':' read -r -a paths <<< "${argv[$(($argc - 1))]}"
+	IFS=':' read -r -a paths <<< "${argv[$argl]}"
 
 	local p
 	for p in "${paths[@]}"; do
 		ack "${ack_args[@]}" "$p"
+	done
+}
+
+##
+# find_all
+# searches a list of :-delimited paths using find
+# find_all <path list> [find args...]
+function find_all {
+	# copy args to a usable variable name. parens are necessary to remind bash this is an array
+	local argv=("${@}")
+	local argc="${#argv[@]}"
+
+	local -a find_args=("${argv[@]:1}")
+
+	local -a paths
+	IFS=':' read -r -a paths <<< "${argv[0]}"
+
+	local p
+	for p in "${paths[@]}"; do
+		find "$p" "${find_args[@]}"
 	done
 }
