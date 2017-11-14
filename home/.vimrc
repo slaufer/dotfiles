@@ -29,6 +29,7 @@ set shiftwidth=4
 set showtabline=2
 set mouse=a
 set laststatus=2
+set statusline=%n\ %<%f%m%=\ %l,%c%V\ %y%r%w
 syntax on
 
 " misc stuff

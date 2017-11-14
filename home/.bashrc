@@ -41,7 +41,7 @@ PS1='$? \w \$ '
 . ~/.bash/prompt/vexing.sh
 
 # history settings
-export HISTSIZE=""
+export HISTSIZE=
 shopt -s histappend
 
 [[ ! -z $PROMPT_COMMAND ]] && OLDPC="${PROMPT_COMMAND}; "
