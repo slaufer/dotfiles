@@ -35,7 +35,7 @@ set $mod Mod4
 floating_modifier $mod
 
 # assorted launchers
-bindsym $mod+Return exec lilyterm -s
+bindsym $mod+Return exec st -f 'Fira Mono:size=11'
 bindsym $mod+b exec chromium --disable-gpu
 bindsym $mod+Shift+b exec iceweasel
 
