@@ -1,4 +1,6 @@
 #!/bin/bash
+[[ "$TERM" = "st" ]] && export TERM="xterm"
+[[ "$TERM" = "st-256color" ]] && export TERM="xterm-256color"
 [[ "$TERM" = "xterm" ]] && export TERM="xterm-256color"
 
 export JAVA_HOME='/usr/lib/jvm/java-7-openjdk-amd64'

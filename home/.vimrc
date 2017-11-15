@@ -17,6 +17,9 @@ vmap <F8> <esc>:tabnext<cr>
 " F6: follow ctag in new tab
 " nmap <F6> <c-w>]<c-w>T
 
+" Ctrl+u: toggle undo tree
+map <c-u> :UndotreeToggle<cr>
+
 " assorted settings
 set nowrap
 set nu
