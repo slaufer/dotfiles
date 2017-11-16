@@ -1,3 +1,4 @@
+Rxvt.saveLines: 0
 Rxvt.background: Black
 Rxvt.foreground: White
 Rxvt.font: xft:Fira Mono:size=11
@@ -18,7 +19,7 @@ URxvt.color10 : #55FF55
 URxvt.color3  : #AA5500
 URxvt.color11 : #FFFF55
 ! blue
-URxvt.color4  : #0000CC
+URxvt.color4  : #3333CC
 URxvt.color12 : #5555FF
 ! magenta
 URxvt.color5  : #AA00AA
