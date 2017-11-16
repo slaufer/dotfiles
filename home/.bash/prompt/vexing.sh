@@ -1,6 +1,6 @@
 #!/bin/bash
 # VEXING requires 256 color support
-if (( $(tput colors) < 256 )); then
+if (( $(tput colors 2> /dev/null || echo 0) < 256 )); then
 	echo VEXING requires 256 color support
 	return
 fi
