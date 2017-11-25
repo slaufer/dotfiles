@@ -32,8 +32,16 @@ set shiftwidth=4
 set showtabline=2
 set mouse=a
 set laststatus=2
-set statusline=%n\ %<%f%m%=\ %l,%c%V\ %y%r%w
 syntax on
+
+" status line
+func! STL()
+	let stl = '%n %<%f%m%= %l,%c%V %y%r%w'
+	let barsz = 20
+	let pad = float2nr(round(barsz * (line('.') - winline()) / (line('$') - 1.0)))
+	return stl.printf("[%s%s]", repeat('>', pad), repeat('-', barsz - pad))
+endfun
+set stl=%!STL() 
 
 " misc stuff
 autocmd BufNewFile,BufRead *.json set ft=javascript

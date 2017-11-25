@@ -38,6 +38,7 @@ floating_modifier $mod
 bindsym $mod+Return exec rxvt-unicode
 bindsym $mod+b exec chromium --disable-gpu
 bindsym $mod+Shift+b exec iceweasel
+bindsym $mod+p exec rox-filer
 
 # kill focused window
 bindsym $mod+Shift+q kill

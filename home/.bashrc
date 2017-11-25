@@ -7,7 +7,7 @@
 [[ -f "/etc/bashrc" ]] && . "/etc/bashrc"
 
 # set up path
-export PATH=$PATH:$HOME/bin
+export PATH=$PATH:$HOME/bin:/usr/local/sbin:/usr/sbin:/sbin
 
 #pager
 export LESS="-RFXS"
