@@ -38,7 +38,7 @@ syntax on
 func! STL()
 	let stl = '%n %<%f%m%= %l,%c%V %y%r%w'
 	let barsz = 20
-	let pad = float2nr(round(barsz * line('.') / (line('$') - 1.0)))
+	let pad = float2nr(round((line('.') - 1.0) / (line('$') - 1.0) * barsz))
 	return stl.'['.repeat('>', pad).repeat('-', barsz - pad).']'
 endfun
 set stl=%!STL() 
