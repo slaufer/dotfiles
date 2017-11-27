@@ -38,8 +38,9 @@ syntax on
 func! STL()
 	let stl = '%n %<%f%m%= %l,%c%V %y%r%w'
 	let barsz = 20
-	let pad = float2nr(round((line('.') - 1.0) / (line('$') - 1.0) * barsz))
-	return stl.'['.repeat('>', pad).repeat('-', barsz - pad).']'
+	let pad = float2nr(round((line('.') - 1.0) / (line('$') - 1.0) * (barsz - 1)))
+	let scrollbar = '['.repeat('-', pad).'#'.repeat('-', (barsz - 1) - pad).']'
+	return stl.scrollbar
 endfun
 set stl=%!STL() 
 
