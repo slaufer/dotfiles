@@ -37,7 +37,7 @@ function _VEXING_PROMPT {
 
 	# status line working directory
 	local dir=$(dirs +0)
-	(( ${#dir} > DIR_WIDTH )) && dir=${dir: -$_VEXING_DIR_WIDTH}
+	(( ${#dir} > DIR_WIDTH )) && dir=...${dir: $((3 - DIR_WIDTH))}
 	dir=${dir//\//${COLORS[6]}/${COLORS[4]}}
 	prompt+=" ${COLORS[1]}[${COLORS[4]}${dir}${COLORS[1]}]"
 
