@@ -26,7 +26,7 @@ function _VEXING_PROMPT {
 	)
 
 	# TODO: make this dynamic?
-	local DIR_WIDTH=70
+	local DIR_WIDTH=60
 
 	# start with a reset
 	local prompt=${COLORS[1]}
@@ -58,18 +58,18 @@ function _VEXING_PROMPT {
 
 		# figure out how to color the branch name
 		local branch_color=${COLORS[9]}
-		(( staged > 0 )) && branch_color=${COLORS[2]} 
-		(( unstaged > 0 )) && branch_color=${COLORS[7]}
+		(( staged )) && branch_color=${COLORS[2]} 
+		(( unstaged )) && branch_color=${COLORS[7]}
 		prompt+=" ${COLORS[1]}[${branch_color}$(git rev-parse --abbrev-ref HEAD)${_VEXING_colors[0]}"
 
-		(( unstaged > 0 )) && prompt+="${COLORS[7]} ${unstaged}"
-		(( staged > 0 )) && prompt+="${COLORS[2]} ${staged}"
+		(( unstaged )) && prompt+="${COLORS[7]} ${unstaged}"
+		(( staged )) && prompt+="${COLORS[2]} ${staged}"
 
 		prompt+="${COLORS[1]}]"
 	fi
 
 	# exit code (if non-zero)
-	(( exit != 0 )) && prompt+=" ${COLORS[1]}[${COLORS[7]}${exit}${COLORS[1]}]"
+	(( exit )) && prompt+=" ${COLORS[1]}[${COLORS[7]}${exit}${COLORS[1]}]"
 
 	# command count
 	prompt+="\n${COLORS[1]}[${COLORS[9]}#\#${_VEXING_colors[0]}${COLORS[1]}] " # command number
