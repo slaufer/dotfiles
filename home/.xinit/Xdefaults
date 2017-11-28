@@ -1,7 +1,6 @@
 Rxvt.saveLines: 0
 Rxvt.background: Black
 Rxvt.foreground: White
-Rxvt.font: xft:Fira Mono:size=11
 Rxvt.scrollBar: False
 Rxvt.boldFont:
 Rxvt.boldItalicFont:

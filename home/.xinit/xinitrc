@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# load base Xdefaults
+xrdb -merge "$HOME/.xinit/Xdefaults"
+
+# load local (or general) Xdefaults
+if [[ -e "$HOME/.xinit/localdefaults/${HOSTNAME}.Xdefaults" ]]; then
+	xrdb -merge "$HOME/.xinit/localdefaults/${HOSTNAME}.Xdefaults"
+else
+	xrdb -merge "$HOME/.xinit/general.Xdefaults"
+fi
+
+# load local config if one exists
+[[ -e "$HOME/.xinit/localrc/${HOSTNAME}.xinitrc" ]] && . "$HOME/.xinit/localrc/${HOSTNAME}.xinitrc"
+
+# load virtualbox config if we suspect this is a virtualbox vm
+lspci | grep -iq virtualbox && . "$HOME/.xinit/virtualbox.xinitrc"
+
+# hello i3
+fbsetbg -l
+
+# if we have nm-applet, we probably want to start it
+which nm-applet && nm-applet &
+
+# i3, the window manager of my heart
+. "$HOME/.i3/i3rc"
+i3

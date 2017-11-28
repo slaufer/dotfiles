@@ -9,18 +9,6 @@
 # layout, use the i3-config-wizard
 #
 
-# Font for window titles. Will also be used by the bar unless a different font
-# is used in the bar {} block below.
-# This font is widely installed, provides lots of unicode glyphs, right-to-left
-# text rendering and scalability on retina/hidpi displays (thanks to pango).
-font pango:Inconsolata 11
-# Before i3 v4.8, we used to recommend this one as the default:
-# font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
-# The font above is very space-efficient, that is, it looks good, sharp and
-# clear in small sizes. However, its unicode glyph coverage is limited, the old
-# X core fonts rendering does not support right-to-left and this being a bitmap
-# font, it doesn’t scale on retina/hidpi displays.
-
 # use these keys for focus, movement, and resize directions when reaching for
 # the arrows is not convenient
 set $up Up
@@ -133,7 +121,7 @@ bindsym $mod+Mod1+Shift+$right move workspace to output right
 # reload the configuration file
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+r restart
+bindsym $mod+Shift+r exec bash ~/.i3/i3rc; restart
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -160,12 +148,6 @@ mode "resize" {
 }
 
 bindsym $mod+r mode "resize"
-
-# Start i3bar to display a workspace bar (plus the system information i3status
-# finds out, if available)
-bar {
-        status_command i3status 
-}
 
 #######################################################################
 # automatically start i3-config-wizard to offer the user to create a
