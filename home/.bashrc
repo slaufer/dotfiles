@@ -16,14 +16,6 @@ export PAGER=less
 # dircolors
 eval "$(dircolors -b)"
 
-# aliases
-alias gup='git fetch && git pull origin $(git rev-parse --abbrev-ref HEAD)'
-alias gl='git log --graph --all --pretty="%Cgreen%h %Cred%an: %Creset%s"'
-alias noeol="perl -pi -e 'chomp if eof'"
-alias mkdir='mkdir -p'
-alias grep='grep --color=auto'
-alias ls='ls -hF --color=auto'
-alias procs="ps fxU $USER"
 
 # VAM-specific env vars
 [[ $HOSTNAME =~ ^vam[0-9]+\. ]] && . "$HOME/.bash/vamhost.bashrc"

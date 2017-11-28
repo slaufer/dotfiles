@@ -1,5 +1,17 @@
 #!/bin/bash
-# assorted scripts that aren't big enough for their own file
+# assorted aliases and scripts that aren't big enough for their own file
+
+# git aliases
+alias gst='git status'
+alias gfe='git fetch && git pull origin $(git rev-parse --abbrev-ref HEAD)'
+alias gl='git log --graph --all --pretty="%Cgreen%h %Cred%an: %Creset%s"'
+
+# other aliases
+alias noeol="perl -pi -e 'chomp if eof'"
+alias mkdir='mkdir -p'
+alias grep='grep --color=auto'
+alias ls='ls -hF --color=auto'
+alias procs="ps fxU $USER"
 
 ##
 # ack_all
