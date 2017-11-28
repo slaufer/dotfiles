@@ -36,13 +36,49 @@ syntax on
 
 " status line
 func! STL()
+	" base status line
 	let stl = '%n %<%f%m%= %l,%c%V %y%r%w'
+
+	" scrollbar
 	let barsz = 20
 	let pad = float2nr(round((line('.') - 1.0) / (line('$') - 1.0) * (barsz - 1)))
 	let scrollbar = '['.repeat('-', pad).'#'.repeat('-', (barsz - 1) - pad).']'
-	return stl.scrollbar
+	let stl .= scrollbar
+
+	return stl
 endfun
-set stl=%!STL() 
+set stl=%!STL()
+
+" tab line
+" this will take a non-trivial amount of code, putting it off for later
+"func! TAL()
+"	" base tabline
+"	let tal = '%#TabLineFill#'
+"
+"	for i in range(tabpagenr('$'))
+"		let tabno = i + 1
+"		let winnr = tabpagewinnr(tabno)
+"		let buflist = tabpagebuflist(tabno)
+"		let bufcount = len(buflist)
+"		let actbuf = buflist[winnr - 1]
+"		let actname = bufname(actbuf)
+"		let tabtitle = len(actname) ? actname : '?'
+"		let modified = getbufvar(actbuf, "&mod")
+"		let modflag = modified ? '+ ' : ''
+"		
+"		if tabno == tabpagenr()
+"	      let tal .= '%#TabLineSel#'
+"	    else
+"	      let tal .= '%#TabLine#'
+"		endif
+"
+"	    let tal .= '%' . tabno . 'T ' . modflag . tabtitle . ' %T'
+"	endfor
+"
+"	let tal .= '%#TabLineFill#'
+"	return tal
+"endfun
+"set tal=%!TAL() 
 
 " misc stuff
 autocmd BufNewFile,BufRead *.json set ft=javascript
