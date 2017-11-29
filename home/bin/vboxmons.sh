@@ -21,8 +21,7 @@ count=$1
 (( count < 1 )) && printhelp "argument must be > 1"
 
 # get monitor list
-mons=$(xrandr | grep connected | cut -d' ' -f1 | sort)
-mons=(VGA-0 VGA-1 VGA-2 VGA-3 VGA-4)
+mons=( $(xrandr | grep connected | cut -d' ' -f1 | sort) )
 echo "Found ${#mons} monitors: ${mons[@]}"
 
 # disable all but the first monitor -- disabling the first one crashes the X server
@@ -39,7 +38,7 @@ for mon in ${mons[@]}; do
 
 	# if this isn't the first monitor, set it to the right of the previous one
 	if [[ -z $lastmon ]]; then
-		echo Running: echo xrandr --output $mon --auto
+		echo Running: xrandr --output $mon --auto
 		xrandr --output $mon --auto
 	else
 		echo Running: xrandr --output $mon --auto --right-of $lastmon
