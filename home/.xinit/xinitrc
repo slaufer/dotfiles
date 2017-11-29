@@ -14,7 +14,7 @@ fi
 [[ -e "$HOME/.xinit/localrc/${HOSTNAME}.xinitrc" ]] && . "$HOME/.xinit/localrc/${HOSTNAME}.xinitrc"
 
 # load virtualbox config if we suspect this is a virtualbox vm
-lspci | grep -iq virtualbox && . "$HOME/.xinit/virtualbox.xinitrc"
+which VBoxClient && . "$HOME/.xinit/virtualbox.xinitrc"
 
 # hello i3
 fbsetbg -l
