@@ -7,7 +7,6 @@
 #
 # To get a config file with the same key positions, but for your current
 # layout, use the i3-config-wizard
-#
 
 # use these keys for focus, movement, and resize directions when reaching for
 # the arrows is not convenient
@@ -121,7 +120,7 @@ bindsym $mod+Mod1+Shift+$right move workspace to output right
 # reload the configuration file
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+r exec bash ~/.i3/i3rc; restart
+bindsym $mod+Shift+r exec i3-restart
 
 # resize window (you can also use the mouse for that)
 mode "resize" {

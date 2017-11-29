@@ -1,8 +1,11 @@
 #!/bin/bash
 # Generates i3 config file.
 
+# clear existing config
+[[ -e "$HOME/.i3/config" ]] && truncate -s 0 "$HOME/.i3/config"
+
 # overwrite any existing config
-echo "#######################################################" > "$HOME/.i3/config"
+echo "#######################################################" >> "$HOME/.i3/config"
 echo "### AUTOMATICALLY GENERATED ON X START, DO NOT EDIT ###" >> "$HOME/.i3/config"
 echo "#######################################################" >> "$HOME/.i3/config"
 

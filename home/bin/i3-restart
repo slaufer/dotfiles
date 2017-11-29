@@ -1,0 +1,3 @@
+#!/bin/bash
+. "$HOME/.i3/i3rc"
+i3-msg restart
