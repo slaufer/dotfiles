@@ -1,8 +1,10 @@
 execute pathogen#infect()
 
+""""""""""""""""
+" KEY MAPPINGS "
+""""""""""""""""
+
 nmap s <Plug>(easymotion-s2)
-let g:EasyMotion_smartcase = 1
-let NERDTreeShowHidden = 1
 
 " F7: previous tab
 nmap <F7> :tabprevious<cr>
@@ -20,10 +22,15 @@ vmap <F8> <esc>:tabnext<cr>
 " Ctrl+u: toggle undo tree
 map <c-u> :UndotreeToggle<cr>
 
-" assorted settings
+""""""""""""
+" SETTINGS "
+""""""""""""
+
+
+" basic settings
 set nowrap
-set nu
-set hls
+set number
+set hlsearch
 set sc
 set textwidth=0
 set backspace=2
@@ -32,22 +39,79 @@ set shiftwidth=4
 set showtabline=2
 set mouse=a
 set laststatus=2
+set stl=%n%Y%R%W:%<%f%M%=\ %c%V,%l\ %O:%B\ (%P)
 syntax on
 
-" status line
-func! STL()
-	" base status line
-	let stl = '%n %<%f%m%= %l,%c%V %y%r%w'
+" plugin settings
+let g:EasyMotion_smartcase = 1
+let NERDTreeShowHidden = 1
 
-	" scrollbar
-	let barsz = 20
-	let pad = float2nr(round((line('.') - 1.0) / (line('$') - 1.0) * (barsz - 1)))
-	let scrollbar = '['.repeat('-', pad).'#'.repeat('-', (barsz - 1) - pad).']'
-	let stl .= scrollbar
+" misc stuff
+autocmd FileType vim :set textwidth=0 " STOP CHANGING MY FUCKING TEXTWIDTH VIM SYNTAX PLUGIN
 
-	return stl
+" platform-specific stuff
+if has('gui_running') " gui stuff
+	if has('win32')
+		set clipboard=unnamed
+		set guifont=Consolas:h11:cANSI
+	elseif has("unix")
+		set clipboard=unnamedplus
+		set guifont=Inconsolata\ Medium\ 13
+	endif
+
+	color desertEx-mod
+	set guioptions-=T
+	set guioptions-=e
+	set guioptions-=m
+else " console stuff
+	" tmux drag compatibility
+	if &term =~ '^screen'
+		set ttymouse=xterm2
+	endif
+
+	" figure out terminal colors
+	if &t_Co >= 256
+		color desertEx-mod
+		let &colorcolumn=join(range(121,999),',')
+	else
+		color torte
+	endif
+
+	behave xterm
+endif
+
+""""""""""""
+" Commands "
+""""""""""""
+
+" purge non-visible buffers
+func! BPURGE()
+	for i in range(bufnr('$'))
+		if buflisted(i) && !bufloaded(i)
+			execute('bd '.i)
+		endif
+	endfor
 endfun
-set stl=%!STL()
+com! Bpurge :call BPURGE()
+
+"""""""""""""""""
+" Display Style "
+"""""""""""""""""
+
+" status line
+"func! STL()
+"	" base status line
+"	let stl = '[%n] %<%f%m%= %c%V,%l(%P) %y%r%w'
+"
+"	" scrollbar -- this ended up being less useful than annoying
+"	"let barsz = 20
+"	"let pad = float2nr(round((line('.') - 1.0) / (line('$') - 1.0) * (barsz - 1)))
+"	"let scrollbar = '['.repeat('-', pad).'#'.repeat('-', (barsz - 1) - pad).']'
+"	"let stl .= scrollbar
+"
+"	return stl
+"endfun
+"set stl=%!STL()
 
 " tab line
 " this will take a non-trivial amount of code, putting it off for later
@@ -80,38 +144,4 @@ set stl=%!STL()
 "endfun
 "set tal=%!TAL() 
 
-" misc stuff
-autocmd BufNewFile,BufRead *.json set ft=javascript
-
-" platform-specific stuff
-if has('gui_running')
-	if has('win32')
-		set clipboard=unnamed
-		set guifont=Consolas:h11:cANSI
-	elseif has("unix")
-		set clipboard=unnamedplus
-		set guifont=Inconsolata\ Medium\ 13
-	endif
-
-	color desertEx-mod
-	set guioptions-=T
-	set guioptions-=e
-	set guioptions-=m
-" console-only stuff
-else
-	" tmux drag compatibility
-	if &term =~ '^screen'
-		set ttymouse=xterm2
-	endif
-
-	" figure out terminal colors
-	if &t_Co >= 256
-		color desertEx-mod
-		let &colorcolumn=join(range(121,999),',')
-	else
-		color torte
-	endif
-
-	behave xterm
-endif
 
