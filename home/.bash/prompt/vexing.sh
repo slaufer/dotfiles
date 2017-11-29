@@ -29,7 +29,7 @@ function _VEXING_PROMPT {
 	local DIR_WIDTH=60
 
 	# start with a reset
-	local prompt=${COLORS[1]}
+	local prompt=${COLORS[0]}
 	
 	# status line clock
 	local time=($(date '+%l %M%P'))
