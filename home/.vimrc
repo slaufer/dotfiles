@@ -16,11 +16,11 @@ nmap <F8> :tabnext<cr>
 imap <F8> <c-o>:tabnext<cr>
 vmap <F8> <esc>:tabnext<cr>
 
-" F6: follow ctag in new tab
-" nmap <F6> <c-w>]<c-w>T
-
 " Ctrl+u: toggle undo tree
 map <c-u> :UndotreeToggle<cr>
+
+" Ctrl+i: toggle tagbar
+map <c-i> :TagbarToggle<cr>
 
 """"""""""""
 " SETTINGS "
@@ -39,7 +39,7 @@ set shiftwidth=4
 set showtabline=2
 set mouse=a
 set laststatus=2
-set stl=%n%Y%R%W:%<%f%M%=\ %c%V,%l\ %O:%B\ (%P)
+set stl=%n%Y%R%W:%<%f%M%=\ %c%V,%l\ 0x%O:0x%02B\ (%P)
 syntax on
 
 " plugin settings
@@ -86,7 +86,7 @@ endif
 
 " purge non-visible buffers
 func! BPURGE()
-	for i in range(bufnr('$'))
+	for i in range(1,bufnr('$'))
 		if buflisted(i) && !bufloaded(i)
 			execute('bd '.i)
 		endif
@@ -100,9 +100,9 @@ func! CHARINFO()
 	let char = matchstr(getline('.'), '\%' . col('.') . 'c.')
 	echo printf("Char %s (Dec %s, hex 0x%x) at line %s, column %s", char, char2nr(char), char2nr(char), line('.'), virtcol('.'))
 endfun
-com! Ci :call CHARINFO()
-com! Cinfo :call CHARINFO()
-com! Charinfo :call CHARINFO()
+com! Ci call CHARINFO()
+com! Cinfo call CHARINFO()
+com! Charinfo call CHARINFO()
 
 " saves a session
 func! SAVESESSION()
@@ -111,9 +111,16 @@ func! SAVESESSION()
 	mks! ~/.vimsession
 	let &ssop=old_opts
 endfun
-com! Ss :call SAVESESSION()
-com! Sse :call SAVESESSION()
-com! Savesession :call SAVESESSION()
+com! Ss call SAVESESSION()
+com! Sse call SAVESESSION()
+com! Savesession call SAVESESSION()
+
+" transfers a register to the X11 clipboard
+" takes a register as the first argument, otherwise uses the last register used
+func! XCLIP(...)
+	let q = system('xclip -i -selection clipboard', eval('@' . (len(a:000) ? a:1 : v:register)))
+endfun
+com! -nargs=* Xcb call XCLIP(<f-args>)
 
 """""""""""""""""
 " Display Style "
