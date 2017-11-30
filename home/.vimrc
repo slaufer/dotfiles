@@ -93,6 +93,27 @@ func! BPURGE()
 	endfor
 endfun
 com! Bpurge :call BPURGE()
+com! Bpu :call BPURGE()
+
+" displays info on the character under the cursor
+func! CHARINFO()
+	let char = matchstr(getline('.'), '\%' . col('.') . 'c.')
+	echo printf("Char %s (Dec %s, hex 0x%x) at line %s, column %s", char, char2nr(char), char2nr(char), line('.'), virtcol('.'))
+endfun
+com! Ci :call CHARINFO()
+com! Cinfo :call CHARINFO()
+com! Charinfo :call CHARINFO()
+
+" saves a session
+func! SAVESESSION()
+	let old_opts=&ssop
+	set ssop=blank,buffers,curdir,folds,help,resize,tabpages,winpos,winsize
+	mks! ~/.vimsession
+	let &ssop=old_opts
+endfun
+com! Ss :call SAVESESSION()
+com! Sse :call SAVESESSION()
+com! Savesession :call SAVESESSION()
 
 """""""""""""""""
 " Display Style "
