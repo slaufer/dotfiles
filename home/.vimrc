@@ -118,7 +118,13 @@ com! Savesession call SAVESESSION()
 " transfers a register to the X11 clipboard
 " takes a register as the first argument, otherwise uses the last register used
 func! XCLIP(...)
-	let q = system('xclip -i -selection clipboard', eval('@' . (len(a:000) ? a:1 : v:register)))
+	let reg = (len(a:000) ? a:1 : v:register)
+	silent let output = system('xclip -i -selection clipboard', eval('@' . reg))
+	if (v:shell_error)
+		echo 'ERROR xclip exited with code ' . v:shell_error . ': ' . output
+	else
+		echo 'Copied contents of register ' . reg . ' to X11 clipboard '
+	endif
 endfun
 com! -nargs=* Xcb call XCLIP(<f-args>)
 
