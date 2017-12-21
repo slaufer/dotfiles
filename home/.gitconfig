@@ -1,7 +1,7 @@
 [user]
 [core]
 	pager = diff-so-fancy | less --tabs=4 -RFX
-	excludesfile = /home/slaufer/.gitignore
+	excludesfile = ~/.gitignore
 [color]
 	ui = true
 [color "diff-highlight"]

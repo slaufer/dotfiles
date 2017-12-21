@@ -56,7 +56,7 @@ if has('gui_running') " gui stuff
 		set guifont=Consolas:h11:cANSI
 	elseif has("unix")
 		set clipboard=unnamedplus
-		set guifont=Inconsolata\ Medium\ 13
+		set guifont=Fira\ Mono\ 13
 	endif
 
 	color desertEx-mod
