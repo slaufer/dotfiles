@@ -15,7 +15,7 @@ if version > 580
 	syntax reset
 	endif
 endif
-let g:colors_name="desertEx"
+let g:colors_name="desertEx-mod"
 
 highlight Normal guifg=white guibg=grey17 gui=NONE ctermfg=231 ctermbg=235 cterm=NONE
 
