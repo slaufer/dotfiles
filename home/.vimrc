@@ -46,9 +46,6 @@ syntax on
 let g:EasyMotion_smartcase = 1
 let NERDTreeShowHidden = 1
 
-" misc stuff
-autocmd FileType vim :set textwidth=0 " STOP CHANGING MY FUCKING TEXTWIDTH VIM SYNTAX PLUGIN
-
 " platform-specific stuff
 if has('gui_running') " gui stuff
 	if has('win32')
@@ -106,10 +103,10 @@ com! Charinfo call CHARINFO()
 
 " saves a session
 func! SAVESESSION()
-	let old_opts=&ssop
+	let old_ssop=&ssop
 	set ssop=blank,buffers,curdir,folds,help,resize,tabpages,winpos,winsize
 	mks! ~/.vimsession
-	let &ssop=old_opts
+	let &ssop=old_ssop
 endfun
 com! Ss call SAVESESSION()
 com! Sse call SAVESESSION()
@@ -127,6 +124,20 @@ func! XCLIP(...)
 	endif
 endfun
 com! -nargs=* Xcb call XCLIP(<f-args>)
+
+""""""""""
+" Events "
+""""""""""
+
+autocmd FileType * :set textwidth=0 " STOP CHANGING MY FUCKING TEXTWIDTH VIM SYNTAX PLUGIN
+
+" when multiple files are opened from the command line, show them all in tabs
+func! VimEnterShowBuffers()
+	if (argc() > 1)
+		tab sba
+	endif
+endfun
+autocmd VimEnter * :call VimEnterShowBuffers()
 
 """""""""""""""""
 " Display Style "
