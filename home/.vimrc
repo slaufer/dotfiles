@@ -132,12 +132,7 @@ com! -nargs=* Xcb call XCLIP(<f-args>)
 autocmd FileType * :set textwidth=0 " STOP CHANGING MY FUCKING TEXTWIDTH VIM SYNTAX PLUGIN
 
 " when multiple files are opened from the command line, show them all in tabs
-func! VimEnterShowBuffers()
-	if (argc() > 1)
-		tab sba
-	endif
-endfun
-autocmd VimEnter * :call VimEnterShowBuffers()
+autocmd VimEnter * :tab sba
 
 """""""""""""""""
 " Display Style "
