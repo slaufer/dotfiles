@@ -5,6 +5,7 @@
 alias gst='git status'
 alias gfe='git fetch && git pull origin $(git rev-parse --abbrev-ref HEAD)'
 alias gl='git log --graph --all --pretty="%Cgreen%h %Cred%an: %Creset%s"'
+alias gb='git branch | cut -c3- | xargs dialog --no-items --menu "MENU!" $(($(tput lines) *3 / 4)) $(($(tput cols) * 3 / 4)) $(tput lines) 3>&2 2>&1 1>&3 | xargs git checkout'
 
 # other aliases
 alias noeol="perl -pi -e 'chomp if eof'"
