@@ -95,7 +95,7 @@ com! Bpu :call BPURGE()
 " displays info on the character under the cursor
 func! CHARINFO()
 	let char = matchstr(getline('.'), '\%' . col('.') . 'c.')
-	echo printf("Char %s (Dec %s, hex 0x%x) at line %s, column %s", char, char2nr(char), char2nr(char), line('.'), virtcol('.'))
+	echo printf("char '%s' (oct 0%o, dec %s, hex 0x%x) at line %s, column %s", char, char2nr(char), char2nr(char), char2nr(char), line('.'), virtcol('.'))
 endfun
 com! Ci call CHARINFO()
 com! Cinfo call CHARINFO()

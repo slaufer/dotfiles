@@ -1,0 +1,129 @@
+#!/bin/bash
+
+##
+# join_by (by Pascal Pilz, Stack Overflow)
+# joins arguments with a string
+function join_by {
+	local IFS="$1"
+	shift
+	echo "$*"
+}
+
+##
+# pce
+# prints bash color escape codes -- helper for pco
+# pce [code ..]
+function pce {
+	echo -ne '\e['$(join_by ';' "$@")'m'
+}
+
+##
+# pco
+# prints bash color codes. see https://misc.flogisoft.com/bash/tip_colors_and_formatting for code listing.
+# pco 1 - Reset colors to default
+# pco 3 <fg> [bg] - Set 3-bit color
+# pco 8 <fg> [bg] - set 8-bit color
+# pco 24 <fg_r fg_g fg_b> [bg_r bg_g bg_b] - set 24 bit color
+function pco {
+	local ARGV=("$@")
+	local ARGC=${#ARGV[@]}
+
+	if (( ARGV[0] == 1 )); then
+		pce 0
+	elif (( ARGV[0] == 3 )); then
+		pce "${ARGV[@]:1:2}"
+	elif (( ARGV[0] == 8 )); then
+		if (( ARGC == 2 )); then
+			pce 38 5 ${ARGV[1]}
+		elif (( ARGC == 3 )); then
+			pce 38 5 ${ARGV[1]} 48 5 ${ARGV[2]}
+		fi
+	elif (( ARGV[0] == 24 )); then
+		# 24 bit mode -- if your terminal supports this, you probably already know
+		if (( ARGC == 4 )); then
+			pce 38 2 "${ARGV[@]:1:3}"
+		elif (( ARGC == 7 )); then
+			pce 38 2 "${ARGV[@]:1:3}"
+			pce 48 2 "${ARGV[@]:4:3}"
+		fi
+	fi
+}
+
+colorr=$(pco 1)
+colors=( $(pco 8 39) $(pco 8 240) )
+colorc=${#colors[@]}
+colorf=$(pco 8 24)
+coloro=$(pco 8 37)
+
+# parse arguments and make sure they're sane
+formats=$1
+[[ -z $formats ]] || [[ $formats =~ [^ODHA] ]] && exit 1
+formatc=${#formats}
+
+# get input
+read -d '' input <&0
+len=${#input}
+
+# some constants
+ocolsz=3 dcolsz=3 hcolsz=2 acolsz=1 tsz=$(tput cols)
+[[ -z $tsz ]] || [[ $tsz =~ [^0-9] ]] && exit 2
+
+# calculate column component widths
+# *csz = column size    *esz = extra size      *osz = offset column size
+# *fmt = column format  *ofmt = offset format
+# TODO: use some arrays or something, just clean this mess up
+frame="$colorf|$colorr"
+ocsz=0 oesz=0 oosz=0 ofmt= oofmt=
+dcsz=0 desz=0 dosz=0 dfmt= dofmt=
+hcsz=0 hesz=0 hosz=0 hfmt= hofmt=
+acsz=0 aesz=0 aosz=0 afmt= aofmt=
+[[ $formats == *O* ]] && ocsz=3 oesz=2 oosz=$(printf '%o' $len | wc -c) ofmt='%03o' && oofmt="%0${oosz}o"
+[[ $formats == *D* ]] && dcsz=3 desz=2 dosz=$(printf '%d' $len | wc -c) dfmt='%3d'  && dofmt="%${dosz}d"
+[[ $formats == *H* ]] && hcsz=2 hesz=2 hosz=$(printf '%x' $len | wc -c) hfmt='%02x' && hofmt="%0${hosz}x"
+[[ $formats == *A* ]] && acsz=1 aesz=1 aosz=0 && afmt='%s' # no offset column for ascii
+
+# figure out how many columns we can have
+(( csz = ocsz + dcsz + hcsz + acsz ))
+(( esz = oesz + oosz + desz + dosz + hesz + hosz + aesz + aosz + 1 ))
+for (( cols = 1; cols * csz + esz <= tsz; cols++ )); do :; done; ((cols--))
+
+# generate format strings
+# *rfmt = row format
+orfmt= drfmt= hrfmt= arfmt=
+(( ocsz > 0 )) && orfmt="$frame$coloro${oofmt}$frame" && for (( i = 0; i < cols; i++ )); do orfmt+="${colors[i%colorc]}${ofmt}"; done
+(( dcsz > 0 )) && drfmt="$frame$coloro${dofmt}$frame" && for (( i = 0; i < cols; i++ )); do drfmt+="${colors[i%colorc]}${dfmt}"; done
+(( hcsz > 0 )) && hrfmt="$frame$coloro${hofmt}$frame" && for (( i = 0; i < cols; i++ )); do hrfmt+="${colors[i%colorc]}${hfmt}"; done
+(( acsz > 0 )) && arfmt="$frame" && for (( i = 0; i < cols; i++ )); do arfmt+="${afmt}"; done
+
+# iterate over the input and print things out
+for (( off = 0; off < len; off += cols )); do
+	# grab current row, and translate for ascii display if necessary
+	row="${input:off:cols}"
+	(( acsz > 0 )) && trow="$(echo -n "$row" | tr -c '\40-\176' '.')"
+
+	# convert into arrays of args for printf
+	drow=()
+	(( acsz > 0 )) && crow=()
+	for (( i = 0; i < cols; i++ )); do
+		drow+=( "'${row:i:1}" )
+		(( acsz > 0 )) && char=${trow:i:1} && crow+=( "${char:- }" )
+	done
+
+	# print row
+	for (( i = 0; i < formatc; i++)); do
+		case ${formats:i:1} in
+			O)
+				printf "$orfmt" $off "${drow[@]}";;
+			D)
+				printf "$drfmt" $off "${drow[@]}";;
+			H)
+				printf "$hrfmt" $off "${drow[@]}";;
+			A)
+				printf "$arfmt" "${crow[@]}"
+				(( ${#crow[@]} < cols )) && echo yeah && printf "x%.0" {1..$((cols - ${#crow[@]}))}
+				;;
+		esac
+	done
+	echo "$frame"
+done
+
