@@ -1,129 +1,218 @@
-#!/bin/bash
+#!/usr/bin/python3
+import fileinput
+import argparse
+import sys
+import os
+import itertools
+import re
 
-##
-# join_by (by Pascal Pilz, Stack Overflow)
-# joins arguments with a string
-function join_by {
-	local IFS="$1"
-	shift
-	echo "$*"
-}
+################
+# CONFIG CLASS #
+################
 
-##
-# pce
-# prints bash color escape codes -- helper for pco
-# pce [code ..]
-function pce {
-	echo -ne '\e['$(join_by ';' "$@")'m'
-}
+class Config:
+	TERM_COLS = int(os.popen('tput cols', 'r').read())
 
-##
-# pco
-# prints bash color codes. see https://misc.flogisoft.com/bash/tip_colors_and_formatting for code listing.
-# pco 1 - Reset colors to default
-# pco 3 <fg> [bg] - Set 3-bit color
-# pco 8 <fg> [bg] - set 8-bit color
-# pco 24 <fg_r fg_g fg_b> [bg_r bg_g bg_b] - set 24 bit color
-function pco {
-	local ARGV=("$@")
-	local ARGC=${#ARGV[@]}
+	COL_COLORS = ['\033[38;5;39m', '\033[38;5;240m']
+	OFF_COLOR = '\033[38;5;37m'
+	RESET_COLOR = '\033[0m'
+	FRAME_COLOR = '\033[38;5;24m'
+	FRAME = FRAME_COLOR + '|' + RESET_COLOR
+	
 
-	if (( ARGV[0] == 1 )); then
-		pce 0
-	elif (( ARGV[0] == 3 )); then
-		pce "${ARGV[@]:1:2}"
-	elif (( ARGV[0] == 8 )); then
-		if (( ARGC == 2 )); then
-			pce 38 5 ${ARGV[1]}
-		elif (( ARGC == 3 )); then
-			pce 38 5 ${ARGV[1]} 48 5 ${ARGV[2]}
-		fi
-	elif (( ARGV[0] == 24 )); then
-		# 24 bit mode -- if your terminal supports this, you probably already know
-		if (( ARGC == 4 )); then
-			pce 38 2 "${ARGV[@]:1:3}"
-		elif (( ARGC == 7 )); then
-			pce 38 2 "${ARGV[@]:1:3}"
-			pce 48 2 "${ARGV[@]:4:3}"
-		fi
-	fi
-}
+	COL_ARGS = 'odhaODH'
+	OFF_MAX = (1 << 16) - 1
 
-colorr=$(pco 1)
-colors=( $(pco 8 39) $(pco 8 240) )
-colorc=${#colors[@]}
-colorf=$(pco 8 24)
-coloro=$(pco 8 37)
+##################
+# COLUMN CLASSES #
+##################
 
-# parse arguments and make sure they're sane
-formats=$1
-[[ -z $formats ]] || [[ $formats =~ [^ODHA] ]] && exit 1
-formatc=${#formats}
+# base layout column class
+class Column:
+	def __init__(self, config):
+		self.config = config
 
-# get input
-read -d '' input <&0
-len=${#input}
+	def format(self, line):
+		return ''
 
-# some constants
-ocolsz=3 dcolsz=3 hcolsz=2 acolsz=1 tsz=$(tput cols)
-[[ -z $tsz ]] || [[ $tsz =~ [^0-9] ]] && exit 2
+	def width(self, line):
+		return len(self.format(line))
 
-# calculate column component widths
-# *csz = column size    *esz = extra size      *osz = offset column size
-# *fmt = column format  *ofmt = offset format
-# TODO: use some arrays or something, just clean this mess up
-frame="$colorf|$colorr"
-ocsz=0 oesz=0 oosz=0 ofmt= oofmt=
-dcsz=0 desz=0 dosz=0 dfmt= dofmt=
-hcsz=0 hesz=0 hosz=0 hfmt= hofmt=
-acsz=0 aesz=0 aosz=0 afmt= aofmt=
-[[ $formats == *O* ]] && ocsz=3 oesz=2 oosz=$(printf '%o' $len | wc -c) ofmt='%03o' && oofmt="%0${oosz}o"
-[[ $formats == *D* ]] && dcsz=3 desz=2 dosz=$(printf '%d' $len | wc -c) dfmt='%3d'  && dofmt="%${dosz}d"
-[[ $formats == *H* ]] && hcsz=2 hesz=2 hosz=$(printf '%x' $len | wc -c) hfmt='%02x' && hofmt="%0${hosz}x"
-[[ $formats == *A* ]] && acsz=1 aesz=1 aosz=0 && afmt='%s' # no offset column for ascii
+class OffsetColumn(Column):
+	def __init__(self, config):
+		super().__init__(config)
+		self.static = True
 
-# figure out how many columns we can have
-(( csz = ocsz + dcsz + hcsz + acsz ))
-(( esz = oesz + oosz + desz + dosz + hesz + hosz + aesz + aosz + 1 ))
-for (( cols = 1; cols * csz + esz <= tsz; cols++ )); do :; done; ((cols--))
+	def format(self, line):
+		return self.config.OFF_COLOR + (self.fmt % line.offset)
 
-# generate format strings
-# *rfmt = row format
-orfmt= drfmt= hrfmt= arfmt=
-(( ocsz > 0 )) && orfmt="$frame$coloro${oofmt}$frame" && for (( i = 0; i < cols; i++ )); do orfmt+="${colors[i%colorc]}${ofmt}"; done
-(( dcsz > 0 )) && drfmt="$frame$coloro${dofmt}$frame" && for (( i = 0; i < cols; i++ )); do drfmt+="${colors[i%colorc]}${dfmt}"; done
-(( hcsz > 0 )) && hrfmt="$frame$coloro${hofmt}$frame" && for (( i = 0; i < cols; i++ )); do hrfmt+="${colors[i%colorc]}${hfmt}"; done
-(( acsz > 0 )) && arfmt="$frame" && for (( i = 0; i < cols; i++ )); do arfmt+="${afmt}"; done
+class DataColumn(Column):
+	def __init__(self, config):
+		super().__init__(config)
+		self.static = False
 
-# iterate over the input and print things out
-for (( off = 0; off < len; off += cols )); do
-	# grab current row, and translate for ascii display if necessary
-	row="${input:off:cols}"
-	(( acsz > 0 )) && trow="$(echo -n "$row" | tr -c '\40-\176' '.')"
+	def col_width(self):
+		return len((self.fmt % 255)) 
 
-	# convert into arrays of args for printf
-	drow=()
-	(( acsz > 0 )) && crow=()
-	for (( i = 0; i < cols; i++ )); do
-		drow+=( "'${row:i:1}" )
-		(( acsz > 0 )) && char=${trow:i:1} && crow+=( "${char:- }" )
-	done
+	def format(self, line):
+		out = ''.join([self.config.COL_COLORS[i%len(self.config.COL_COLORS)] + (self.fmt % byte) for (i, byte) in enumerate(line)])
+		out += self.col_width() * (line.size - len(line)) * ' '
+		return out
 
-	# print row
-	for (( i = 0; i < formatc; i++)); do
-		case ${formats:i:1} in
-			O)
-				printf "$orfmt" $off "${drow[@]}";;
-			D)
-				printf "$drfmt" $off "${drow[@]}";;
-			H)
-				printf "$hrfmt" $off "${drow[@]}";;
-			A)
-				printf "$arfmt" "${crow[@]}"
-				(( ${#crow[@]} < cols )) && echo yeah && printf "x%.0" {1..$((cols - ${#crow[@]}))}
-				;;
-		esac
-	done
-	echo "$frame"
-done
+class OctalDataColumn(DataColumn):
+	def __init__(self, config):
+		super().__init__(config)
+		self.fmt = '%03o'
 
+class OctalOffsetColumn(OffsetColumn):
+	def __init__(self, config):
+		super().__init__(config)
+		self.fmt = '%0' + str(len('%o' % config.OFF_MAX)) + 'o'
+
+class DecimalDataColumn(DataColumn):
+	def __init__(self, config):
+		super().__init__(config)
+		self.fmt = '%3d'
+
+class DecimalOffsetColumn(OffsetColumn):
+	def __init__(self, config):
+		super().__init__(config)
+		self.fmt = '%' + str(len('%d' % config.OFF_MAX)) + 'd'
+
+class HexDataColumn(DataColumn):
+	def __init__(self, config):
+		super().__init__(config)
+		self.fmt = '%02x'
+
+class HexOffsetColumn(OffsetColumn):
+	def __init__(self, config):
+		super().__init__(config)
+		self.fmt = '%0' + str(len('%x' % config.OFF_MAX)) + 'x'
+
+class AsciiDataColumn(DataColumn):
+	def __init__(self, config):
+		super().__init__(config)
+		self.fmt = '%c'
+
+	def col_width(self):
+		return 1
+
+	# overrides format method to filter out non-printable characters
+	def format(self, line):
+		return super().format(Line(line.offset, line.size, [b if b >= 32 and b <= 126 else 46 for b in line]))
+
+#################
+# INPUT CLASSES #
+#################
+
+# represents data for one row
+class Line(list):
+	def __init__(self, offset, size, *args, **kwargs):
+		self.size = size
+		self.offset = offset
+		super().__init__(*args, **kwargs)
+
+	def next_offset(self):
+		return self.offset + self.size
+
+	def __repr__(self):
+		return '[%d: \'%s\']' % (self.size, ''.join([chr(b) if b >= 32 and b <= 126 else '.' for b in self]))
+
+	def __str__(self):
+		return self.__repr__()
+
+# generator reads files into Lines
+def file_reader(paths, line_size):
+	# if there weren't any paths in the arguments, use stdin
+	if not paths:
+		paths = ['-']
+
+	# create initial buffer
+	line = Line(0, line_size)
+
+	# iterate over each file
+	for path in paths:
+		# open the file
+		f = sys.stdin.buffer if path == '-' else open(path, 'rb')
+
+		# iterate over each block returned by read()
+		for block in f:
+			for byte in block:
+				if len(line) < line.size:
+					# if the line isn't full yet, append this byte
+					line.append(byte)
+				else:
+					# otherwise yield the line and create a new one
+					yield line
+					line = Line(line.next_offset(), line.size, [byte])
+
+		# close the file
+		f.close()
+
+	# yield whatever is left
+	if line:
+		yield line
+
+########
+# MAIN #
+########
+
+def parse_args():
+	# parse arguments
+	parser = argparse.ArgumentParser(description='Dumps binary data in the specified columns. Columns may be repeated.')
+	parser.add_argument('-o', action='append_const', dest='cols', const=OctalDataColumn, help='Octal data column')
+	parser.add_argument('-d', action='append_const', dest='cols', const=DecimalDataColumn, help='Decimal data column')
+	parser.add_argument('-x', action='append_const', dest='cols', const=HexDataColumn, help='Hex data column')
+	parser.add_argument('-a', action='append_const', dest='cols', const=AsciiDataColumn, help='ASCII data column')
+	parser.add_argument('-O', action='append_const', dest='cols', const=OctalOffsetColumn, help='Octal offset column')
+	parser.add_argument('-D', action='append_const', dest='cols', const=DecimalOffsetColumn, help='Decimal offset column')
+	parser.add_argument('-X', action='append_const', dest='cols', const=HexOffsetColumn, help='Hex offset column')
+	parser.add_argument('-W', '--wval', help='Set value used to determine offset column width') 
+	parser.add_argument('files', metavar='FILE', nargs='*')
+	return parser.parse_args()
+
+
+def main():
+	# setup
+	config = Config()
+	args = parse_args()
+
+	if args.wval:
+		config.OFF_MAX = int(args.wval)
+
+	# make sure at least one column was selected
+	if not args.cols:
+		print("No columns selected (-h for help)")
+		sys.exit(1)
+
+	# create column objects
+	cols = [col_class(config) for col_class in args.cols]
+
+	# figure out how many columns we can have
+	if [True for col in cols if not col.static]:
+		for data_cols in itertools.count():
+			# render the line with maximum values so we can get the width
+			max_line = Line(0, data_cols, [ 255 ] * data_cols)
+			output = config.FRAME.join([col.format(max_line) for col in cols])
+
+			# strip out color codes for an accurate width
+			stripped = re.sub(r'\033\[[\d;]+?m', '', output)
+			width = len(stripped)
+
+			if width > config.TERM_COLS:
+				break
+		data_cols -= 1
+	else:
+		# if we only have static-width (e.g. offset) columns, set the data column count to 1
+		data_cols = 1
+
+
+	# create input reader
+	reader = file_reader(args.files, data_cols) if args.files else file_reader(None, data_cols)
+
+	# write output
+	for line in reader:
+		print(config.FRAME.join([col.format(line) for col in cols]) + config.RESET_COLOR)
+ 
+if __name__ == '__main__':
+	main()
