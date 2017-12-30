@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import fileinput
 import argparse
 import sys
 import os
@@ -14,11 +13,12 @@ class Config:
 	TERM_COLS = int(os.popen('tput cols', 'r').read())
 
 	COL_COLORS = ['\033[38;5;39m', '\033[38;5;240m']
+	# COL_COLORS = ['\033[38;5;196m', '\033[38;5;202m', '\033[38;5;226m', '\033[38;5;83m', '\033[38;5;33m', '\033[38;5;20m', '\033[38;5;91m' ]
 	OFF_COLOR = '\033[38;5;37m'
-	RESET_COLOR = '\033[0m'
+	# OFF_COLOR = '\033[m'
+	RESET_COLOR = '\033[m'
 	FRAME_COLOR = '\033[38;5;24m'
 	FRAME = FRAME_COLOR + '|' + RESET_COLOR
-	
 
 	COL_ARGS = 'odhaODH'
 	OFF_MAX = (1 << 16) - 1
@@ -196,7 +196,7 @@ def main():
 			output = config.FRAME.join([col.format(max_line) for col in cols])
 
 			# strip out color codes for an accurate width
-			stripped = re.sub(r'\033\[[\d;]+?m', '', output)
+			stripped = re.sub(r'\033\[(\d\d?;?)*?m', '', output)
 			width = len(stripped)
 
 			if width > config.TERM_COLS:
