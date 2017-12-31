@@ -193,7 +193,7 @@ def file_reader(paths, line_size):
 
 def arg_parser():
 	''' Builds an argparse ArgumentParser '''
-	parser = argparse.ArgumentParser(description='Dumps binary data using the specified columns.' + \
+	parser = argparse.ArgumentParser(description='Dumps binary data using the specified columns. ' + \
 		'If no columns are specified, a default format will be used.')
 
 	# data column args
