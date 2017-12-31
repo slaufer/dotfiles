@@ -10,33 +10,37 @@ import re
 ################
 
 class Config:
-	# get terminal width. using tput instead of stty because it has fewer issues.
-	TERM_COLS = int(os.popen('tput cols', 'r').read())
+	def __init__(self):
+		# get terminal width. using tput instead of stty because it has fewer issues.
+		self.TERM_COLS = int(os.popen('tput cols', 'r').read())
 
-	# Color code to reset to default colors. You probably don't want to change this.
-	RESET_COLOR = '\033[m'
+		# Color code to reset to default colors. You probably don't want to change this.
+		self.RESET_COLOR = '\033[m'
 
-	# Color codes for data columns. This list will be repeatedly iterated in order for each column.
-	COL_COLORS = ['\033[38;5;39m', '\033[38;5;240m']
-	# COL_COLORS = ['\033[38;5;196m', '\033[38;5;202m', '\033[38;5;226m', '\033[38;5;83m', '\033[38;5;33m', '\033[38;5;20m', '\033[38;5;91m' ]
+		# Color codes for data columns. This list will be repeatedly iterated in order for each column.
+		self.COL_COLORS = ['\033[38;5;39m', '\033[38;5;240m']
+		# COL_COLORS = ['\033[38;5;196m', '\033[38;5;202m', '\033[38;5;226m', '\033[38;5;83m', '\033[38;5;33m', '\033[38;5;20m', '\033[38;5;91m' ]
 
-	# Color code for offset columns.
-	OFF_COLOR = '\033[38;5;37m'
-	# OFF_COLOR = RESET_COLOR
+		# Color code for offset columns.
+		self.OFF_COLOR = '\033[38;5;37m'
+		# OFF_COLOR = RESET_COLOR
 
-	# Color code and display character for the frame between columns
-	FRAME_COLOR = '\033[38;5;24m'
-	FRAME_CHAR = '|'
-	FRAME = FRAME_COLOR + FRAME_CHAR
-	
-	# padding char for the last line
-	PAD_CHAR = ' '
+		# Color code and display character for the frame between columns
+		self.FRAME_COLOR = '\033[38;5;24m'
+		self.FRAME_CHAR = '|'
+		self.FRAME = self.FRAME_COLOR + self.FRAME_CHAR
 
-	# Default value used to determine offset column width (see -W / --wval)
-	OFF_MAX = (1 << 16) - 1
+		# default columns
+		self.DEFAULT_COLS = [ DecimalOffsetColumn, HexDataColumn, AsciiDataColumn ]
+		
+		# padding char for the last line
+		self.PAD_CHAR = ' '
 
-	# Whether or not to display summary
-	SUMMARY = False
+		# Default value used to determine offset column width (see -W / --wval)
+		self.OFF_MAX = (1 << 16) - 1
+
+		# Whether or not to display summary
+		self.SUMMARY = False
 
 ##################
 # COLUMN CLASSES #
@@ -189,7 +193,8 @@ def file_reader(paths, line_size):
 
 def arg_parser():
 	''' Builds an argparse ArgumentParser '''
-	parser = argparse.ArgumentParser(description='Dumps binary data using the specified columns.')
+	parser = argparse.ArgumentParser(description='Dumps binary data using the specified columns.' + \
+		'If no columns are specified, a default format will be used.')
 
 	# data column args
 	data_col_group = parser.add_argument_group('Data Columns', 'Specify data columns to be displayed.')
@@ -247,16 +252,12 @@ def main():
 	if args.wval:
 		config.OFF_MAX = int(args.wval)
 
-	# make sure at least one column was selected
-	if not args.col_classes:
-		parser.print_help()
-		sys.exit(1)
-
 	# create column objects
-	cols = [col_class(config) for col_class in args.col_classes]
+	col_classes = args.col_classes or config.DEFAULT_COLS
+	cols = [col_class(config) for col_class in col_classes]
 
 	# figure out how many data columns we can have
-	if [True for col in cols if not col.static]:
+	if list(filter(lambda col: not col.static, cols)):
 		# if we have non-static-width (e.g. data) columns, figure out how many bytes we can display per line
 		for data_cols in itertools.count():
 			# render the line with maximum values so we can get the width
