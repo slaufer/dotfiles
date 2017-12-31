@@ -10,91 +10,119 @@ import re
 ################
 
 class Config:
+	# get terminal width. using tput instead of stty because it has fewer issues.
 	TERM_COLS = int(os.popen('tput cols', 'r').read())
 
+	# Color code to reset to default colors. You probably don't want to change this.
+	RESET_COLOR = '\033[m'
+
+	# Color codes for data columns. This list will be repeatedly iterated in order for each column.
 	COL_COLORS = ['\033[38;5;39m', '\033[38;5;240m']
 	# COL_COLORS = ['\033[38;5;196m', '\033[38;5;202m', '\033[38;5;226m', '\033[38;5;83m', '\033[38;5;33m', '\033[38;5;20m', '\033[38;5;91m' ]
-	OFF_COLOR = '\033[38;5;37m'
-	# OFF_COLOR = '\033[m'
-	RESET_COLOR = '\033[m'
-	FRAME_COLOR = '\033[38;5;24m'
-	FRAME = FRAME_COLOR + '|' + RESET_COLOR
 
-	COL_ARGS = 'odhaODH'
+	# Color code for offset columns.
+	OFF_COLOR = '\033[38;5;37m'
+	# OFF_COLOR = RESET_COLOR
+
+	# Color code and display character for the frame between columns
+	FRAME_COLOR = '\033[38;5;24m'
+	FRAME_CHAR = '|'
+	FRAME = FRAME_COLOR + FRAME_CHAR
+	
+	# padding char for the last line
+	PAD_CHAR = ' '
+
+	# Default value used to determine offset column width (see -W / --wval)
 	OFF_MAX = (1 << 16) - 1
+
+	# Whether or not to display summary
+	SUMMARY = False
 
 ##################
 # COLUMN CLASSES #
 ##################
 
-# base layout column class
 class Column:
+	''' Superclass for all columns '''
 	def __init__(self, config):
 		self.config = config
-
-	def format(self, line):
-		return ''
-
-	def width(self, line):
-		return len(self.format(line))
+		self.color = True
 
 class OffsetColumn(Column):
+	''' Superclass for all offset columns '''
 	def __init__(self, config):
 		super().__init__(config)
 		self.static = True
 
 	def format(self, line):
-		return self.config.OFF_COLOR + (self.fmt % line.offset)
+		return (self.config.OFF_COLOR if self.color else '') + (self.fmt % line.offset)
 
 class DataColumn(Column):
+	''' Superclass for all data columns '''
 	def __init__(self, config):
 		super().__init__(config)
 		self.static = False
 
 	def col_width(self):
+		''' Attempts to determine the max width of a column using the max value (255), used for padding '''
 		return len((self.fmt % 255)) 
 
 	def format(self, line):
-		out = ''.join([self.config.COL_COLORS[i%len(self.config.COL_COLORS)] + (self.fmt % byte) for (i, byte) in enumerate(line)])
-		out += self.col_width() * (line.size - len(line)) * ' '
+		''' Formats the line into a printable string using the subclass' format '''
+		if self.color:
+			out = ''.join([self.config.COL_COLORS[i%len(self.config.COL_COLORS)] + (self.fmt % byte) for (i, byte) in enumerate(line)])
+		else:
+			out = self.config.RESET_COLOR + ''.join([(self.fmt % byte) for (i, byte) in enumerate(line)])
+
+		# if this is a partial (i.e. last) line, pad it with the pad character
+		out += self.col_width() * (line.size - len(line)) * self.config.PAD_CHAR
 		return out
 
 class OctalDataColumn(DataColumn):
+	''' Format class for octal data columns '''
 	def __init__(self, config):
 		super().__init__(config)
 		self.fmt = '%03o'
 
 class OctalOffsetColumn(OffsetColumn):
+	''' Format class for octal offset columns '''
 	def __init__(self, config):
 		super().__init__(config)
 		self.fmt = '%0' + str(len('%o' % config.OFF_MAX)) + 'o'
 
 class DecimalDataColumn(DataColumn):
+	''' Format class for decimal data columns '''
 	def __init__(self, config):
 		super().__init__(config)
 		self.fmt = '%3d'
 
 class DecimalOffsetColumn(OffsetColumn):
+	''' Format class for decimal offset columns '''
 	def __init__(self, config):
 		super().__init__(config)
 		self.fmt = '%' + str(len('%d' % config.OFF_MAX)) + 'd'
 
 class HexDataColumn(DataColumn):
+	''' Format class for hexidecimal data columns '''
 	def __init__(self, config):
 		super().__init__(config)
 		self.fmt = '%02x'
 
 class HexOffsetColumn(OffsetColumn):
+	''' Format class for hexidecimal offset columns '''
 	def __init__(self, config):
 		super().__init__(config)
 		self.fmt = '%0' + str(len('%x' % config.OFF_MAX)) + 'x'
 
 class AsciiDataColumn(DataColumn):
+	''' Format class for ASCII data columns '''
 	def __init__(self, config):
 		super().__init__(config)
 		self.fmt = '%c'
+		self.color = False
 
 	def col_width(self):
+		''' ASCII data columns are always width 1, no need to calculate '''
 		return 1
 
 	# overrides format method to filter out non-printable characters
@@ -107,12 +135,14 @@ class AsciiDataColumn(DataColumn):
 
 # represents data for one row
 class Line(list):
+	''' This class represents the data needed by column classes for a single line of output '''
 	def __init__(self, offset, size, *args, **kwargs):
 		self.size = size
 		self.offset = offset
 		super().__init__(*args, **kwargs)
 
 	def next_offset(self):
+		''' Returns the next offset '''
 		return self.offset + self.size
 
 	def __repr__(self):
@@ -121,8 +151,8 @@ class Line(list):
 	def __str__(self):
 		return self.__repr__()
 
-# generator reads files into Lines
 def file_reader(paths, line_size):
+	''' A generator for reading files into Line objects '''
 	# if there weren't any paths in the arguments, use stdin
 	if not paths:
 		paths = ['-']
@@ -153,51 +183,85 @@ def file_reader(paths, line_size):
 	if line:
 		yield line
 
+###################
+# ARGUMENT PARSER #
+###################
+
+def arg_parser():
+	''' Builds an argparse ArgumentParser '''
+	parser = argparse.ArgumentParser(description='Dumps binary data using the specified columns.')
+
+	# data column args
+	data_col_group = parser.add_argument_group('Data Columns', 'Specify data columns to be displayed.')
+	data_col_group.add_argument('-o', action='append_const', dest='col_classes', const=OctalDataColumn,
+		help='Octal data column. May be specified more than once.')
+	data_col_group.add_argument('-d', action='append_const', dest='col_classes', const=DecimalDataColumn,
+		help='Decimal data column. May be specified more than once.')
+	data_col_group.add_argument('-x', action='append_const', dest='col_classes', const=HexDataColumn,
+		help='Hex data column. May be specified more than once.')
+	data_col_group.add_argument('-a', action='append_const', dest='col_classes', const=AsciiDataColumn,
+		help='ASCII data column. May be specified more than once.')
+
+	# offset column args
+	off_col_group = parser.add_argument_group('Offset Columns', 'Specify offset columns to be displayed.')
+	off_col_group.add_argument('-O', action='append_const', dest='col_classes', const=OctalOffsetColumn,
+		help='Octal offset column. May be specified more than once.')
+	off_col_group.add_argument('-D', action='append_const', dest='col_classes', const=DecimalOffsetColumn,
+		help='Decimal offset column. May be specified more than once.')
+	off_col_group.add_argument('-X', action='append_const', dest='col_classes', const=HexOffsetColumn,
+		help='Hex offset column. May be specified more than once.')
+
+	# other args
+	parser.add_argument('-W', '--wval', help='Set value used to determine offset column width. ' + \
+		'The next power of 2 after the expected input length is generally a safe value.') 
+	parser.add_argument('files', metavar='FILE', nargs='*',
+		help='Specifies a file or files to read. If FILE is -, read from standard input. ' + \
+		'If no FILE is specified, read only from standard input.')
+	parser.add_argument('-s', dest='summary', action='count',  help='Display a brief summary at the end of output.')
+
+	return parser
+
 ########
 # MAIN #
 ########
 
-def parse_args():
-	# parse arguments
-	parser = argparse.ArgumentParser(description='Dumps binary data in the specified columns. Columns may be repeated.')
-	parser.add_argument('-o', action='append_const', dest='cols', const=OctalDataColumn, help='Octal data column')
-	parser.add_argument('-d', action='append_const', dest='cols', const=DecimalDataColumn, help='Decimal data column')
-	parser.add_argument('-x', action='append_const', dest='cols', const=HexDataColumn, help='Hex data column')
-	parser.add_argument('-a', action='append_const', dest='cols', const=AsciiDataColumn, help='ASCII data column')
-	parser.add_argument('-O', action='append_const', dest='cols', const=OctalOffsetColumn, help='Octal offset column')
-	parser.add_argument('-D', action='append_const', dest='cols', const=DecimalOffsetColumn, help='Decimal offset column')
-	parser.add_argument('-X', action='append_const', dest='cols', const=HexOffsetColumn, help='Hex offset column')
-	parser.add_argument('-W', '--wval', help='Set value used to determine offset column width') 
-	parser.add_argument('files', metavar='FILE', nargs='*')
-	return parser.parse_args()
+def strip_colors(string):
+	''' Strips ASCII colors out of a string '''
+	return re.sub(r'\033\[(\d\d?;?)*?m', '', string)
+
+def render_line(config, cols, line):
+	''' Renders a Line into a printable string using the provided configuration and column classes '''
+	return config.FRAME.join([col.format(line) for col in cols])
 
 
 def main():
 	# setup
 	config = Config()
-	args = parse_args()
+	parser = arg_parser()
+	args = parser.parse_args()
 
+	# decide whether or not to print a summary
+	config.SUMMARY = args.summary
+
+	# if the offset width value option was specified, apply it
 	if args.wval:
 		config.OFF_MAX = int(args.wval)
 
 	# make sure at least one column was selected
-	if not args.cols:
-		print("No columns selected (-h for help)")
+	if not args.col_classes:
+		parser.print_help()
 		sys.exit(1)
 
 	# create column objects
-	cols = [col_class(config) for col_class in args.cols]
+	cols = [col_class(config) for col_class in args.col_classes]
 
-	# figure out how many columns we can have
+	# figure out how many data columns we can have
 	if [True for col in cols if not col.static]:
+		# if we have non-static-width (e.g. data) columns, figure out how many bytes we can display per line
 		for data_cols in itertools.count():
 			# render the line with maximum values so we can get the width
 			max_line = Line(0, data_cols, [ 255 ] * data_cols)
-			output = config.FRAME.join([col.format(max_line) for col in cols])
-
-			# strip out color codes for an accurate width
-			stripped = re.sub(r'\033\[(\d\d?;?)*?m', '', output)
-			width = len(stripped)
+			width = len(strip_colors(render_line(config, cols, max_line)))
 
 			if width > config.TERM_COLS:
 				break
@@ -211,8 +275,14 @@ def main():
 	reader = file_reader(args.files, data_cols) if args.files else file_reader(None, data_cols)
 
 	# write output
+	byte_count = 0
 	for line in reader:
-		print(config.FRAME.join([col.format(line) for col in cols]) + config.RESET_COLOR)
+		byte_count += len(line)
+		print(render_line(config, cols, line))
+
+	# write summary
+	if config.SUMMARY:
+		print('Displayed %d bytes per line, %d bytes total' % (data_cols, byte_count))		
  
 if __name__ == '__main__':
 	main()
