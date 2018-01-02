@@ -19,7 +19,6 @@ class Config:
 
 		# Color codes for data columns. This list will be repeatedly iterated in order for each column.
 		# self.COL_COLORS = ['\033[38;5;39m', '\033[38;5;240m']
-		# self.COL_COLORS = ['\033[38;5;196m', '\033[38;5;202m', '\033[38;5;226m', '\033[38;5;83m', '\033[38;5;33m', '\033[38;5;20m', '\033[38;5;91m' ]
 		self.COL_COLORS = [ '\033[96m', '\033[94m' ]
 
 		# Color code for offset columns.
@@ -44,6 +43,25 @@ class Config:
 
 		# Whether or not to display summary
 		self.SUMMARY = False
+		
+		# color themes!
+		self.DEFAULT_THEME = 'vexing'
+		self.THEMES = {
+			'rainbow': ColorTheme('\033[m', [ '\033[38;5;196m', '\033[38;5;202m', '\033[38;5;226m', '\033[38;5;83m', '\033[38;5;33m', '\033[38;5;20m', '\033[38;5;91m' ], '\033[38;5;226m', '\033[38;5;83m', '||'),
+			'cyan': ColorTheme('\033[m', ['\033[38;5;39m', '\033[38;5;240m'], '\033[38;5;37m', '\033[36m', '|'),
+			'3bit': ColorTheme('\033[m', [ '\033[38;5;39m', '\033[38;5;69m' ], '\033[32m', '\033[36m', '|'),
+			'vexing': ColorTheme('\033[m', [ '\033[96m', '\033[94m' ], '\033[38;5;44m', '\033[38;5;25m', '|')
+		}
+		self.theme = self.THEMES[self.DEFAULT_THEME]
+
+class ColorTheme:
+	def __init__(self, reset_color, col_colors, off_color, frame_color, frame_char):
+		self.RESET_COLOR = reset_color
+		self.COL_COLORS = col_colors
+		self.OFF_COLOR = off_color
+		self.FRAME_COLOR = frame_color
+		self.FRAME_CHAR = frame_char
+		self.FRAME = self.FRAME_COLOR + self.FRAME_CHAR
 
 ##################
 # COLUMN CLASSES #
@@ -62,7 +80,7 @@ class OffsetColumn(Column):
 		self.static = True
 
 	def format(self, line):
-		return (self.config.OFF_COLOR if self.color else '') + (self.fmt % line.offset)
+		return (self.config.theme.OFF_COLOR if self.color else '') + (self.fmt % line.offset)
 
 class DataColumn(Column):
 	''' Superclass for all data columns '''
@@ -77,9 +95,9 @@ class DataColumn(Column):
 	def format(self, line):
 		''' Formats the line into a printable string using the subclass' format '''
 		if self.color:
-			out = ''.join([self.config.COL_COLORS[i%len(self.config.COL_COLORS)] + (self.fmt % byte) for (i, byte) in enumerate(line)])
+			out = ''.join([self.config.theme.COL_COLORS[i%len(self.config.theme.COL_COLORS)] + (self.fmt % byte) for (i, byte) in enumerate(line)])
 		else:
-			out = self.config.RESET_COLOR + ''.join([(self.fmt % byte) for (i, byte) in enumerate(line)])
+			out = self.config.theme.RESET_COLOR + ''.join([(self.fmt % byte) for (i, byte) in enumerate(line)])
 
 		# if this is a partial (i.e. last) line, pad it with the pad character
 		out += self.col_width() * (line.size - len(line)) * self.config.PAD_CHAR
@@ -226,6 +244,7 @@ def arg_parser():
 		help='Specifies a file or files to read. If FILE is -, read from standard input. ' + \
 		'If no FILE is specified, read only from standard input.')
 	parser.add_argument('-s', dest='summary', action='count',  help='Display a brief summary at the end of output.')
+	parser.add_argument('-t', dest='theme', help='Specify color theme')
 
 	return parser
 
@@ -235,7 +254,7 @@ def strip_colors(string):
 
 def render_line(config, cols, line):
 	''' Renders a Line into a printable string using the provided configuration and column classes '''
-	return config.FRAME.join([col.format(line) for col in cols])
+	return config.theme.FRAME.join([col.format(line) for col in cols])
 
 def setup():
 	# setup
@@ -245,6 +264,9 @@ def setup():
 
 	# decide whether or not to print a summary
 	config.SUMMARY = args.summary
+
+	if args.theme:
+		config.theme = config.THEMES[args.theme]
 
 	# if the offset width value option was specified, apply it
 	if args.wval:
