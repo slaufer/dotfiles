@@ -212,7 +212,7 @@ def file_reader(paths, line_size):
 # INITIAL SETUP #
 #################
 
-def arg_parser():
+def arg_parser(config):
 	''' Builds an argparse ArgumentParser '''
 	parser = argparse.ArgumentParser(description='Dumps binary data using the specified columns. ' + \
 		'If no columns are specified, a default format will be used.')
@@ -244,7 +244,8 @@ def arg_parser():
 		help='Specifies a file or files to read. If FILE is -, read from standard input. ' + \
 		'If no FILE is specified, read only from standard input.')
 	parser.add_argument('-s', dest='summary', action='count',  help='Display a brief summary at the end of output.')
-	parser.add_argument('-t', dest='theme', help='Specify color theme')
+	parser.add_argument('-t', dest='theme', help='Specify color theme. Options: ' + ', '.join(config.THEMES.keys()))
+
 
 	return parser
 
@@ -259,12 +260,13 @@ def render_line(config, cols, line):
 def setup():
 	# setup
 	config = Config()
-	parser = arg_parser()
+	parser = arg_parser(config)
 	args = parser.parse_args()
 
 	# decide whether or not to print a summary
 	config.SUMMARY = args.summary
 
+	# apply a theme if one was chosen
 	if args.theme:
 		config.theme = config.THEMES[args.theme]
 
