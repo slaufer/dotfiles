@@ -18,15 +18,18 @@ class Config:
 		self.RESET_COLOR = '\033[m'
 
 		# Color codes for data columns. This list will be repeatedly iterated in order for each column.
-		self.COL_COLORS = ['\033[38;5;39m', '\033[38;5;240m']
-		# COL_COLORS = ['\033[38;5;196m', '\033[38;5;202m', '\033[38;5;226m', '\033[38;5;83m', '\033[38;5;33m', '\033[38;5;20m', '\033[38;5;91m' ]
+		# self.COL_COLORS = ['\033[38;5;39m', '\033[38;5;240m']
+		# self.COL_COLORS = ['\033[38;5;196m', '\033[38;5;202m', '\033[38;5;226m', '\033[38;5;83m', '\033[38;5;33m', '\033[38;5;20m', '\033[38;5;91m' ]
+		self.COL_COLORS = [ '\033[96m', '\033[94m' ]
 
 		# Color code for offset columns.
-		self.OFF_COLOR = '\033[38;5;37m'
-		# OFF_COLOR = RESET_COLOR
+		# self.OFF_COLOR = RESET_COLOR
+		# self.OFF_COLOR = '\033[38;5;37m'
+		self.OFF_COLOR = '\033[32m'
 
 		# Color code and display character for the frame between columns
-		self.FRAME_COLOR = '\033[38;5;24m'
+		# self.FRAME_COLOR = '\033[38;5;24m'
+		self.FRAME_COLOR = '\033[36m'
 		self.FRAME_CHAR = '|'
 		self.FRAME = self.FRAME_COLOR + self.FRAME_CHAR
 
@@ -187,9 +190,9 @@ def file_reader(paths, line_size):
 	if line:
 		yield line
 
-###################
-# ARGUMENT PARSER #
-###################
+#################
+# INITIAL SETUP #
+#################
 
 def arg_parser():
 	''' Builds an argparse ArgumentParser '''
@@ -226,10 +229,6 @@ def arg_parser():
 
 	return parser
 
-########
-# MAIN #
-########
-
 def strip_colors(string):
 	''' Strips ASCII colors out of a string '''
 	return re.sub(r'\033\[(\d\d?;?)*?m', '', string)
@@ -238,8 +237,7 @@ def render_line(config, cols, line):
 	''' Renders a Line into a printable string using the provided configuration and column classes '''
 	return config.FRAME.join([col.format(line) for col in cols])
 
-
-def main():
+def setup():
 	# setup
 	config = Config()
 	parser = arg_parser()
@@ -271,15 +269,25 @@ def main():
 		# if we only have static-width (e.g. offset) columns, set the data column count to 1
 		data_cols = 1
 
-
 	# create input reader
 	reader = file_reader(args.files, data_cols) if args.files else file_reader(None, data_cols)
 
-	# write output
+	return (config, cols, reader)
+
+########
+# MAIN #
+########
+
+def main():
+	# do initial setup
+	(config, cols, reader) = setup()
+
+	# iterate over lines from reader
 	byte_count = 0
 	for line in reader:
-		byte_count += len(line)
+		# print rendered line
 		print(render_line(config, cols, line))
+		byte_count += len(line)
 
 	# write summary
 	if config.SUMMARY:
