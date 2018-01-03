@@ -24,7 +24,7 @@ alias noeol="perl -pi -e 'chomp if eof'"
 alias mkdir='mkdir -p'
 alias grep='grep --color=auto'
 alias ls='ls -hF --color=auto'
-alias procs="ps fxU $USER"
+alias psf="ps fxU $USER"
 
 ##
 # ack_all

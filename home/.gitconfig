@@ -2,6 +2,7 @@
 [core]
 	pager = diff-so-fancy | less --tabs=4 -RFX
 	excludesfile = ~/.gitignore
+	editor = /usr/bin/vim
 [color]
 	ui = true
 [color "diff-highlight"]
