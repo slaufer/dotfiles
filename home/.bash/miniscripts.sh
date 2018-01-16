@@ -28,6 +28,20 @@ alias dotfiles='homeshick cd dotfiles'
 alias psf="ps fxU $USER"
 
 ##
+# imgur_rip
+# rips an imgur album, outputs images as <album_hash>_<image_hash>.<ext> in the current directory
+# imgur_rip <album_hash>
+function imgur_rip {
+	local album=$1
+	curl --progress-bar -s "https://imgur.com/ajaxalbums/getimages/53FWk/hit.json" |
+		jq -r '.data.images[] |'\
+			'["url=\"https://i.imgur.com/",.hash,.ext,"\"\noutput=\"'$album'_",.hash,.ext,"\""] |'\
+			' join("")' |
+		curl -K -
+}
+
+
+##
 # ack_all
 # searches a list of :-delimited paths using ack
 # ack_all [ack args...] <path list>

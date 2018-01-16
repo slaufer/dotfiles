@@ -39,7 +39,7 @@ set shiftwidth=4
 set showtabline=2
 set mouse=a
 set laststatus=2
-set stl=%n%Y%R%W:%<%f%M%=\ %c%V,%l\ 0x%O:0x%02B\ (%P)
+set stl=%n%Y%R%W:%<%f%M%=\ %c%V,%-5l\ %5o:%-3b\ (%P)
 syntax on
 
 " plugin settings
