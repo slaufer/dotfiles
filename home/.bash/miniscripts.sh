@@ -34,10 +34,7 @@ alias psf="ps fxU $USER"
 function imgur_rip {
 	local album=$1
 	curl --progress-bar -s "https://imgur.com/ajaxalbums/getimages/53FWk/hit.json" |
-		jq -r '.data.images[] |'\
-			'["url=\"https://i.imgur.com/",.hash,.ext,"\"\noutput=\"'$album'_",.hash,.ext,"\""] |'\
-			' join("")' |
-		curl -K -
+		jq -r '.data.images[] | ["url=\"https://i.imgur.com/",.hash,.ext,"\"\noutput=\"'$album'_",.hash,.ext,"\""] | join("")' | curl -K -
 }
 
 
