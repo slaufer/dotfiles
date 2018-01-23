@@ -9,6 +9,10 @@
 # set up path
 export PATH=$PATH:$HOME/bin:/usr/local/sbin:/usr/sbin:/sbin
 
+for app in ~/apps/*/bin; do
+	export PATH=$PATH:$app
+done
+
 # VAM-specific env vars
 [[ $HOSTNAME =~ ^vam[0-9]+\. ]] && . "$HOME/.bash/vamhost.bashrc"
 
