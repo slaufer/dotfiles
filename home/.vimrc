@@ -45,6 +45,7 @@ syntax on
 " plugin settings
 let g:EasyMotion_smartcase = 1
 let NERDTreeShowHidden = 1
+let g:ctrlp_working_path_mode = '0'
 
 " platform-specific stuff
 if has('gui_running') " gui stuff
