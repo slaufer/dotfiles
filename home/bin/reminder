@@ -1,16 +1,17 @@
 #!/bin/bash
 width=$( tput cols )
-height=$( tput lines )
 IFS=$'\n' lines=( $(fold -s -w $width <<< "$1") )
 
-(( ypad = (height - ${#lines[@]}) / 2 ))
+(( ypad = ($( tput lines ) - ${#lines[@]}) / 2 ))
 
 yes '' | head -n $ypad
+
 for line in "${lines[@]}"; do
-	(( xpad = (width - ${#line}) / 2 ))
-	yes ' ' | head -n $xpad | tr -d '\n'
+	
+	yes ' ' | head -n $(( (width - ${#line}) / 2 )) | tr -d '\n'
 	echo $line
 done
+
 yes '' | head -n $ypad
 
 read
