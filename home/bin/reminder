@@ -1,22 +1,16 @@
 #!/bin/bash
 width=$( tput cols )
 height=$( tput lines )
-msg=$1
-msg_len=${#msg}
-(( msg_lines = msg_len / width ))
-(( msg_len % width != 0 )) && (( msg_lines++ ))
-(( ypad = height / 2 - msg_lines / 2 ))
+IFS=$'\n' lines=( $(fold -s -w $width <<< "$1") )
+
+(( ypad = (height - ${#lines[@]}) / 2 ))
 
 yes '' | head -n $ypad
-for (( i = 0; i < msg_len; i += width )); do
-	line_msg=${msg:i:width}
-	line_msg_len=${#line_msg}
-	(( xpad = width / 2 - line_msg_len / 2 ))
+for line in "${lines[@]}"; do
+	(( xpad = (width - ${#line}) / 2 ))
 	yes ' ' | head -n $xpad | tr -d '\n'
-	echo $line_msg
+	echo $line
 done
 yes '' | head -n $ypad
 
-yes ' ' | head -n $(( width / 2 - 13 )) | tr -d '\n'
-echo -n "Press enter to continue..."
 read
