@@ -40,6 +40,8 @@ set showtabline=2
 set mouse=a
 set laststatus=2
 set stl=%n%Y%R%W:%<%f%M%=\ %c%V,%-5l\ %5o:%-3b\ (%P)
+set list
+set listchars=tab:>\ ,trail:~,extends:>,precedes:<
 syntax on
 
 " plugin settings

@@ -8,7 +8,7 @@
 
 # prints help message
 function printhelp {
-	echo "vboxmons.sh: Enables a given number of monitors (usually in VirtualBox)" >&2
+	echo "vboxmons.sh: Enables a given number of displays and arranges them left-to-right" >&2
 	echo "USAGE: $0 <# of monitors to enable>" >&2
 	[[ ! -z $1 ]] && echo Error: $1 >&2
 	exit 1
@@ -21,14 +21,14 @@ count=$1
 [[ -z $count ]] && printhelp "no count given"
 
 # make sure the argument is numeric
-[[ ! $count =~ ^[0-9]+$ ]] && printhelp "argument must be numeric"
+[[ ! $count =~ ^[0-9]+$ ]] && printhelp "count must be numeric"
 
 # make sure the argument is valid
-(( count < 1 )) && printhelp "argument must be > 1"
+(( count < 1 )) && printhelp "count must be >= 1 -- most X servers will crash with 0 displays"
 
 # get monitor list
-mons=( $(xrandr | grep connected | cut -d' ' -f1 | sort) )
-echo "Found ${#mons} monitors: ${mons[@]}"
+IFS=$'\n' mons=( $(xrandr | grep -oP '^[\w\d-]+(?= connected)') )
+echo "Found ${#mons[@]} monitors: ${mons[@]}"
 
 # disable all but the first monitor -- disabling the first one crashes the X server
 for mon in ${mons[@]:1}; do
