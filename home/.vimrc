@@ -59,7 +59,7 @@ if has('gui_running') " gui stuff
 		set guifont=Fira\ Mono\ 13
 	endif
 
-	color desertEx-mod
+	color vexing
 	set guioptions-=T
 	set guioptions-=e
 	set guioptions-=m
@@ -71,7 +71,7 @@ else " console stuff
 
 	" figure out terminal colors
 	if &t_Co >= 256
-		color desertEx-mod
+		color vexing
 		let &colorcolumn=join(range(121,999),',')
 	else
 		color torte
