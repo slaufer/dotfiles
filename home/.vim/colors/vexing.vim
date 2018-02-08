@@ -42,14 +42,14 @@ highlight WarningMsg     ctermfg=231 ctermbg=196
 highlight colorcolumn    ctermbg=236
 
 " syntax highlighting groups
-highlight Comment        ctermfg=6
+highlight Comment        ctermfg=67
 highlight Constant       ctermfg=35
-highlight Identifier     ctermfg=38
-highlight Statement      ctermfg=176
-highlight PreProc        ctermfg=216
-highlight Type           ctermfg=111
-highlight Special        ctermfg=227
-highlight Todo           ctermfg=10
+highlight Identifier     ctermfg=51
+highlight Statement      ctermfg=215
+highlight PreProc        ctermfg=139
+highlight Type           ctermfg=121
+highlight Special        ctermfg=220
+highlight Todo           ctermfg=232 ctermbg=208
 
 
 highlight TabLineFill    ctermbg=0   ctermfg=231 cterm=NONE

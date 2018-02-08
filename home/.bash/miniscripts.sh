@@ -20,6 +20,7 @@ alias hdo='hexdump -e '\''"| %8_ao | " 8/1 "%03o " " |"'\'' -e '\''" %4_ax | " 8
 
 ##
 # other aliases
+alias decolor="sed -e 's/'$'\e''\[[0-9;]*m//g'"
 alias noeol="perl -pi -e 'chomp if eof'"
 alias mkdir='mkdir -p'
 alias grep='grep --color=auto'
