@@ -48,6 +48,7 @@ syntax on
 let g:EasyMotion_smartcase = 1
 let NERDTreeShowHidden = 1
 let g:ctrlp_working_path_mode = '0'
+let &colorcolumn=join(range(121,999), ',')
 
 " platform-specific stuff
 if has('gui_running') " gui stuff
@@ -72,7 +73,6 @@ else " console stuff
 	" figure out terminal colors
 	if &t_Co >= 256
 		color vexing
-		let &colorcolumn=join(range(121,999),',')
 	else
 		color torte
 	endif
