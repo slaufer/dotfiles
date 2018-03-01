@@ -27,6 +27,7 @@ done
 
 # if this ever REALLY breaks anything i'll just change TERM manually
 [[ $TERM == 'xterm' ]] && TERM='xterm-256color'
+[[ $TERM == 'screen-256color' ]] && TERM='xterm-256color'
 
 # shell prompt
 PS1='$? \w \$ '
