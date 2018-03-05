@@ -192,4 +192,4 @@ autocmd VimEnter * :call VimEnterShowBuffers()
 "endfun
 "set tal=%!TAL() 
 
-
+filetype indent off
