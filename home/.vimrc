@@ -42,13 +42,14 @@ set laststatus=2
 set stl=%n%Y%R%W:%<%f%M%=\ %c%V,%-5l\ %5o:%-3b\ (%P)
 set list
 set listchars=tab:\|\ ,trail:~,extends:>,precedes:<
+" let &colorcolumn=join(range(121,999), ',')
 syntax on
 
 " plugin settings
 let g:EasyMotion_smartcase = 1
 let NERDTreeShowHidden = 1
 let g:ctrlp_working_path_mode = '0'
-let &colorcolumn=join(range(121,999), ',')
+let g:ctrlp_custom_ignore = 'node_modules\|.git\|.idea\|nytprof'
 
 " platform-specific stuff
 if has('gui_running') " gui stuff
@@ -73,7 +74,7 @@ else " console stuff
 	" figure out terminal colors
 	if &t_Co >= 256
 		color vexing
-	else
+	elseif &t_Co >= 8
 		color torte
 	endif
 
@@ -133,8 +134,10 @@ com! -nargs=* Xcb call XCLIP(<f-args>)
 """"""""""
 
 autocmd FileType * :set textwidth=0 " STOP CHANGING MY FUCKING TEXTWIDTH VIM SYNTAX PLUGIN
+autocmd BufNewFile,BufRead *.coffee :set syntax=coffee
 
 " when multiple files are opened from the command line, show them all in tabs
+" FIXME: syntax highlighting is not turned on in any tab(/buffer?) except the first
 func! VimEnterShowBuffers()
 	if (argc() > 1)
 		tab sba
@@ -142,54 +145,10 @@ func! VimEnterShowBuffers()
 endfun
 autocmd VimEnter * :call VimEnterShowBuffers()
 
-"""""""""""""""""
-" Display Style "
-"""""""""""""""""
-
-" status line
-"func! STL()
-"	" base status line
-"	let stl = '[%n] %<%f%m%= %c%V,%l(%P) %y%r%w'
-"
-"	" scrollbar -- this ended up being less useful than annoying
-"	"let barsz = 20
-"	"let pad = float2nr(round((line('.') - 1.0) / (line('$') - 1.0) * (barsz - 1)))
-"	"let scrollbar = '['.repeat('-', pad).'#'.repeat('-', (barsz - 1) - pad).']'
-"	"let stl .= scrollbar
-"
-"	return stl
-"endfun
-"set stl=%!STL()
-
-" tab line
-" this will take a non-trivial amount of code, putting it off for later
-"func! TAL()
-"	" base tabline
-"	let tal = '%#TabLineFill#'
-"
-"	for i in range(tabpagenr('$'))
-"		let tabno = i + 1
-"		let winnr = tabpagewinnr(tabno)
-"		let buflist = tabpagebuflist(tabno)
-"		let bufcount = len(buflist)
-"		let actbuf = buflist[winnr - 1]
-"		let actname = bufname(actbuf)
-"		let tabtitle = len(actname) ? actname : '?'
-"		let modified = getbufvar(actbuf, "&mod")
-"		let modflag = modified ? '+ ' : ''
-"		
-"		if tabno == tabpagenr()
-"	      let tal .= '%#TabLineSel#'
-"	    else
-"	      let tal .= '%#TabLine#'
-"		endif
-"
-"	    let tal .= '%' . tabno . 'T ' . modflag . tabtitle . ' %T'
-"	endfor
-"
-"	let tal .= '%#TabLineFill#'
-"	return tal
-"endfun
-"set tal=%!TAL() 
-
+" this has to come last because vim wants any reason to turn it back on
+set nocindent
+set nosmartindent
+set noautoindent
+set indentexpr=
 filetype indent off
+filetype plugin indent off
