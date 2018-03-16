@@ -17,6 +17,7 @@ highlight Cursor         ctermfg=16  ctermbg=15
 
 
 " highlight groups
+highlight Conceal        ctermfg=235 ctermbg=232
 highlight DiffAdd        ctermfg=16  ctermbg=83
 highlight DiffDelete     ctermfg=16  ctermbg=160
 highlight DiffChange     ctermfg=16  ctermbg=87

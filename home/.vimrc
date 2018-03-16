@@ -34,8 +34,6 @@ set hlsearch
 set sc
 set textwidth=0
 set backspace=2
-set tabstop=4
-set shiftwidth=4
 set showtabline=2
 set mouse=a
 set laststatus=2
@@ -50,6 +48,8 @@ let g:EasyMotion_smartcase = 1
 let NERDTreeShowHidden = 1
 let g:ctrlp_working_path_mode = '0'
 let g:ctrlp_custom_ignore = 'node_modules\|.git\|.idea\|nytprof'
+let g:indentLine_setColors = 0
+let g:indentLine_char = '|'
 
 " platform-specific stuff
 if has('gui_running') " gui stuff
@@ -133,7 +133,8 @@ com! -nargs=* Xcb call XCLIP(<f-args>)
 " Events "
 """"""""""
 
-autocmd FileType * :set textwidth=0 " STOP CHANGING MY FUCKING TEXTWIDTH VIM SYNTAX PLUGIN
+" dear vim: there is absolutely no situation where i want textwidth to be anything other than 0
+autocmd FileType * :set textwidth=0
 autocmd BufNewFile,BufRead *.coffee :set syntax=coffee
 
 " when multiple files are opened from the command line, show them all in tabs
@@ -145,10 +146,16 @@ func! VimEnterShowBuffers()
 endfun
 autocmd VimEnter * :call VimEnterShowBuffers()
 
-" this has to come last because vim wants any reason to turn it back on
-set nocindent
-set nosmartindent
-set noautoindent
-set indentexpr=
-filetype indent off
-filetype plugin indent off
+"""""""""""""""""
+" Indent Config "
+"""""""""""""""""
+
+" this config has to come last, because otherwise it *will* get clobbered.
+" set tabstop=4
+" set shiftwidth=4
+" set nocindent
+" set nosmartindent
+" set noautoindent
+" set indentexpr=
+" filetype indent off
+" filetype plugin indent off
