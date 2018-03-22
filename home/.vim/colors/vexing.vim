@@ -1,6 +1,7 @@
 " Vim color file
 " Maintainer:	Scott Laufer <slaufer@gmail.com>
-" Last Change:	2018-02-06
+" Created:	2018-02-06
+" Last Change:	2018-03-21
 " neons and pastels on black
 " optimized for radness
 
@@ -26,7 +27,9 @@ highlight ErrorMsg       ctermfg=231 ctermbg=196
 highlight FoldColumn     ctermfg=16  ctermbg=177
 highlight Folded         ctermfg=16  ctermbg=121
 highlight IncSearch      ctermfg=16  ctermbg=123
-highlight MatchParen     ctermfg=16  ctermbg=46
+" highlight MatchParen     ctermfg=16  ctermbg=46
+" highlight MatchParen     ctermfg=196 ctermbg=232
+highlight MatchParen     ctermfg=129 ctermbg=232
 highlight ModeMsg        ctermfg=51  ctermbg=16
 highlight MoreMsg        ctermfg=15  ctermbg=16
 highlight NonText        ctermfg=23  ctermbg=16
