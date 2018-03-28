@@ -27,11 +27,12 @@ count=$1
 (( count < 1 )) && printhelp "count must be >= 1 -- most X servers will crash with 0 displays"
 
 # get monitor list
-IFS=$'\n' mons=( $(xrandr | grep -oP '^[\w\d-]+(?= connected)') )
+mons=( $(xrandr | grep -oP '^[\w\d-]+(?= connected)') )
 echo "Found ${#mons[@]} monitors: ${mons[@]}"
 
 # disable all but the first monitor -- disabling the first one crashes the X server
-for mon in ${mons[@]:1}; do
+xmons=( ${mons[@]:1} )
+for mon in ${xmons[@]}; do
 	echo Running: xrandr --output $mon --off
 	xrandr --output $mon --off
 done
