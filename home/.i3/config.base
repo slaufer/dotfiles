@@ -83,7 +83,7 @@ bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
 
 bindsym $mod+Shift+t mark sp_term; move scratchpad
-bindsym $mod+t [con_mark="sp_term"] scratchpad show
+bindsym $mod+t [con_mark="sp_term"] scratchpad show, resize set 900 900
 
 bindsym $mod+Shift+m mark sp_notes; move scratchpad
 bindsym $mod+m [con_mark="sp_notes"] scratchpad show
