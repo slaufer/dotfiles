@@ -4,6 +4,11 @@ execute pathogen#infect()
 " KEY MAPPINGS "
 """"""""""""""""
 
+map <ESC>[OA <c-Up>
+map <ESC>[OB <c-Down>
+map <ESC>[OC <c-Right>
+map <ESC>[OD <c-Left>
+
 nmap s <Plug>(easymotion-s2)
 
 " F7: previous tab
@@ -17,10 +22,15 @@ imap <F8> <c-o>:tabnext<cr>
 vmap <F8> <esc>:tabnext<cr>
 
 " Ctrl+u: toggle undo tree
-map <c-u> :UndotreeToggle<cr>
+nnoremap <leader>mu :UndotreeToggle<cr>
+nnoremap <leader>mb :TagbarToggle<cr>
 
-" Ctrl+i: toggle tagbar
-map <c-i> :TagbarToggle<cr>
+" Alt+Shift+j/k/l/; -- Scroll viewport left/down/up/right
+nnoremap <a-s-j> 5zh
+nnoremap <a-s-k> <c-e>
+nnoremap <a-s-l> <c-y>
+nnoremap <a-:> 5zl
+
 
 """"""""""""
 " SETTINGS "
@@ -50,6 +60,10 @@ let g:ctrlp_working_path_mode = '0'
 let g:ctrlp_custom_ignore = 'node_modules\|.git\|.idea\|nytprof'
 let g:indentLine_setColors = 0
 let g:indentLine_char = '|'
+
+let g:tabman_toggle = '<leader>mt'
+let g:tabman_specials = 1
+let g:tabman_number = 0
 
 " platform-specific stuff
 if has('gui_running') " gui stuff
