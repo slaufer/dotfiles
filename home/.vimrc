@@ -4,32 +4,32 @@ execute pathogen#infect()
 " KEY MAPPINGS "
 """"""""""""""""
 
-map <ESC>[OA <c-Up>
-map <ESC>[OB <c-Down>
-map <ESC>[OC <c-Right>
-map <ESC>[OD <c-Left>
-
 nmap s <Plug>(easymotion-s2)
 
-" F7: previous tab
-nmap <F7> :tabprevious<cr>
-imap <F7> <c-o>:tabprevious<cr>
-vmap <F7> <esc>:tabprevious<cr>
+" F9: previous tab
+nmap <F9> :tabprevious<cr>
+imap <F9> <c-o>:tabprevious<cr>
+vmap <F9> <esc>:tabprevious<cr>
 
-" F8: next tab
-nmap <F8> :tabnext<cr>
-imap <F8> <c-o>:tabnext<cr>
-vmap <F8> <esc>:tabnext<cr>
+" F10: next tab
+nmap <F10> :tabnext<cr>
+imap <F10> <c-o>:tabnext<cr>
+vmap <F10> <esc>:tabnext<cr>
 
 " Ctrl+u: toggle undo tree
 nnoremap <leader>mu :UndotreeToggle<cr>
 nnoremap <leader>mb :TagbarToggle<cr>
 
 " Alt+Shift+j/k/l/; -- Scroll viewport left/down/up/right
-nnoremap <a-s-j> 5zh
-nnoremap <a-s-k> <c-e>
-nnoremap <a-s-l> <c-y>
-nnoremap <a-:> 5zl
+nnoremap <a-j> 5zh
+nnoremap <a-k> 3<c-e>
+nnoremap <a-l> 3<c-y>
+nnoremap <a-;> 5zl
+
+nnoremap <a-s-j> :vertical resize -1<cr>
+nnoremap <a-s-k> :resize -1<cr>
+nnoremap <a-s-l> :resize +1<cr>
+nnoremap <a-:> :vertical resize +1<cr>
 
 
 """"""""""""
@@ -50,6 +50,7 @@ set laststatus=2
 set stl=%n%Y%R%W:%<%f%M%=\ %c%V,%-5l\ %5o:%-3b\ (%P)
 set list
 set listchars=tab:\|\ ,trail:~,extends:>,precedes:<
+set colorcolumn=121
 " let &colorcolumn=join(range(121,999), ',')
 syntax on
 
@@ -65,6 +66,10 @@ let g:tabman_toggle = '<leader>mt'
 let g:tabman_specials = 1
 let g:tabman_number = 0
 
+if has('nvim')
+	tnoremap <Esc> <C-\><C-n>
+endif
+
 " platform-specific stuff
 if has('gui_running') " gui stuff
 	if has('win32')
@@ -75,7 +80,7 @@ if has('gui_running') " gui stuff
 		set guifont=Fira\ Mono\ 13
 	endif
 
-	color vexing
+	color torte
 	set guioptions-=T
 	set guioptions-=e
 	set guioptions-=m
@@ -101,11 +106,15 @@ endif
 
 " purge non-visible buffers
 func! BPURGE()
+	let l:count = 0
 	for i in range(1,bufnr('$'))
 		if buflisted(i) && !bufloaded(i)
-			execute('bd '.i)
+			let l:count = l:count + 1
+			execute('bd ' . i)
 		endif
 	endfor
+
+	echo printf("%d buffers closed", l:count)
 endfun
 com! Bpurge :call BPURGE()
 com! Bpu :call BPURGE()
@@ -150,15 +159,17 @@ com! -nargs=* Xcb call XCLIP(<f-args>)
 " dear vim: there is absolutely no situation where i want textwidth to be anything other than 0
 autocmd FileType * :set textwidth=0
 autocmd BufNewFile,BufRead *.coffee :set syntax=coffee
+autocmd BufNewFile,BufRead *.json :set syntax=javascript
 
 " when multiple files are opened from the command line, show them all in tabs
 " FIXME: syntax highlighting is not turned on in any tab(/buffer?) except the first
-func! VimEnterShowBuffers()
-	if (argc() > 1)
-		tab sba
-	endif
-endfun
-autocmd VimEnter * :call VimEnterShowBuffers()
+" NEVERMIND: this just shittily reproduces the behavior of the -p flag
+" func! VimEnterShowBuffers()
+"	if (argc() > 1)
+"		tab sba
+"	endif
+" endfun
+" autocmd VimEnter * :call VimEnterShowBuffers()
 
 """""""""""""""""
 " Indent Config "
