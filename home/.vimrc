@@ -20,17 +20,20 @@ vmap <F10> <esc>:tabnext<cr>
 nnoremap <leader>mu :UndotreeToggle<cr>
 nnoremap <leader>mb :TagbarToggle<cr>
 
-" Alt+Shift+j/k/l/; -- Scroll viewport left/down/up/right
+" Alt+j/k/l/; -- Scroll viewport left/down/up/right (normal mode)
 nnoremap <a-j> 5zh
 nnoremap <a-k> 3<c-e>
 nnoremap <a-l> 3<c-y>
 nnoremap <a-;> 5zl
 
+" Alt+Shift+j/k/l/; -- Resize viewport left/down/up/right (normal mode)
 nnoremap <a-s-j> :vertical resize -1<cr>
 nnoremap <a-s-k> :resize -1<cr>
 nnoremap <a-s-l> :resize +1<cr>
 nnoremap <a-:> :vertical resize +1<cr>
 
+" Ctrl+J -- Insert newline (normal mode)
+nnoremap <C-j> i<CR><ESC>
 
 """"""""""""
 " SETTINGS "
