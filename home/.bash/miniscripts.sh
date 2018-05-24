@@ -17,7 +17,8 @@ alias grep='grep --color=auto'
 alias ls='ls -hF --color=auto'
 alias dotfiles='homeshick cd dotfiles'
 alias psf="ps fxU $USER"
-alias vim='nvim'
+which nvim && alias vim='nvim'
+which neovim && alias vim='neovim'
 
 ##
 # imgur_rip
