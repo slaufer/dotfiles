@@ -47,5 +47,6 @@ shopt -s histappend
 [[ ! -z $PROMPT_COMMAND ]] && OLDPC="${PROMPT_COMMAND}; "
 PROMPT_COMMAND="${OLDPC}history -a; history -n"
 
+export NODE_PATH=$(npm root --quiet -g)
 
 return 0

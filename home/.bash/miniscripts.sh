@@ -1,3 +1,4 @@
+
 #!/bin/bash
 # assorted aliases and scripts that aren't big enough for their own file
 
@@ -17,8 +18,8 @@ alias grep='grep --color=auto'
 alias ls='ls -hF --color=auto'
 alias dotfiles='homeshick cd dotfiles'
 alias psf="ps fxU $USER"
-which nvim && alias vim='nvim'
-which neovim && alias vim='neovim'
+which nvim > /dev/null && alias vim='nvim'
+which neovim > /dev/null && alias vim='neovim'
 
 ##
 # imgur_rip

@@ -18,7 +18,7 @@ vmap <F10> <esc>:tabnext<cr>
 
 " Ctrl+u: toggle undo tree
 nnoremap <leader>mu :UndotreeToggle<cr>
-nnoremap <leader>mb :TagbarToggle<cr>
+nnoremap <leader>ms :SignatureToggle<cr>
 
 " Alt+j/k/l/; -- Scroll viewport left/down/up/right (normal mode)
 nnoremap <a-j> 5zh
@@ -44,17 +44,17 @@ nnoremap <C-j> i<CR><ESC>
 set nowrap
 set number
 set hlsearch
-set sc
+set showcmd
 set textwidth=0
 set backspace=2
 set showtabline=2
 set mouse=a
 set laststatus=2
-set stl=%n%Y%R%W:%<%f%M%=\ %c%V,%-5l\ %5o:%-3b\ (%P)
+set statusline=%n%Y%R%W:%<%f%M%=\ %c%V,%-5l\ %5o:%-3b\ (%P)
 set list
 set listchars=tab:\|\ ,trail:~,extends:>,precedes:<
+set scrolloff=5
 set colorcolumn=121
-" let &colorcolumn=join(range(121,999), ',')
 syntax on
 
 " plugin settings
