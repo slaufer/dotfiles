@@ -14,7 +14,7 @@ endif
 let g:colors_name="vexing"
 
 highlight Normal              ctermfg=254 ctermbg=232
-highlight Cursor              ctermfg=16  ctermbg=15
+highlight Cursor              ctermfg=16  ctermbg=6
 
 " highlight groups
 highlight Conceal             ctermfg=235 ctermbg=232
@@ -36,7 +36,7 @@ highlight SpecialKey          ctermfg=235 ctermbg=232
 highlight VertSplit           ctermfg=87  ctermbg=24  cterm=NONE
 highlight Visual              ctermfg=159 ctermbg=38
 highlight WarningMsg          ctermfg=231 ctermbg=196
-highlight ColorColumn                ctermbg=60
+highlight ColorColumn                     ctermbg=60
 
 " frame parts
 highlight LineNr              ctermfg=23  ctermbg=16
