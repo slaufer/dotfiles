@@ -21,3 +21,4 @@ VBoxClient --clipboard
 VBoxClient --draganddrop
 VBoxClient --display
 VBoxClient --seamless
+VBoxClient --vmsvga
