@@ -20,17 +20,29 @@ vmap <F10> <esc>:tabnext<cr>
 nnoremap <leader>mu :UndotreeToggle<cr>
 nnoremap <leader>ms :SignatureToggle<cr>
 
-" Alt+j/k/l/; -- Scroll viewport left/down/up/right (normal mode)
-nnoremap <a-j> 5zh
-nnoremap <a-k> 3<c-e>
-nnoremap <a-l> 3<c-y>
-nnoremap <a-;> 5zl
+" j/k/l/; -- Normal mode cursor movement
+nnoremap ; l
+nnoremap l k
+nnoremap k j
+nnoremap j h
+
+" Alt+j/k/l/; -- Switch windows
+nnoremap <a-j> <C-w><Left>
+nnoremap <a-k> <C-w><Down>
+nnoremap <a-l> <C-w><Up>
+nnoremap <a-;> <C-w><Right>
+
+" Alt+Shift+j/k/l/; -- Scroll viewport left/down/up/right (normal mode)
+nnoremap <a-s-j> 5zh
+nnoremap <a-s-k> 3<c-e>
+nnoremap <a-s-l> 3<c-y>
+nnoremap <a-:> 5zl
 
 " Alt+Shift+j/k/l/; -- Resize viewport left/down/up/right (normal mode)
-nnoremap <a-s-j> :vertical resize -1<cr>
-nnoremap <a-s-k> :resize -1<cr>
-nnoremap <a-s-l> :resize +1<cr>
-nnoremap <a-:> :vertical resize +1<cr>
+" nnoremap <a-s-j> :vertical resize -1<cr>
+" nnoremap <a-s-k> :resize -1<cr>
+" nnoremap <a-s-l> :resize +1<cr>
+" nnoremap <a-:> :vertical resize +1<cr>
 
 " Ctrl+J -- Insert newline (normal mode)
 nnoremap <C-j> i<CR><ESC>
