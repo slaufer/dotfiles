@@ -174,7 +174,6 @@ com! -nargs=* Xcb call XCLIP(<f-args>)
 " dear vim: there is absolutely no situation where i want textwidth to be anything other than 0
 autocmd FileType * :set textwidth=0
 autocmd BufNewFile,BufRead *.coffee :set syntax=coffee
-autocmd BufNewFile,BufRead *.json :set syntax=javascript
 
 " when multiple files are opened from the command line, show them all in tabs
 " FIXME: syntax highlighting is not turned on in any tab(/buffer?) except the first
