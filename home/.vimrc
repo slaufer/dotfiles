@@ -81,10 +81,6 @@ let g:tabman_toggle = '<leader>mt'
 let g:tabman_specials = 1
 let g:tabman_number = 0
 
-if has('nvim')
-	tnoremap <Esc> <C-\><C-n>
-endif
-
 " platform-specific stuff
 if has('gui_running') " gui stuff
 	if has('win32')
