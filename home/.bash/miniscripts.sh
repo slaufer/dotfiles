@@ -22,6 +22,10 @@ which nvim > /dev/null && alias vim='nvim'
 which neovim > /dev/null && alias vim='neovim'
 
 ##
+# ssh aliases
+alias vam01="ssh vam01.slaufer"
+
+##
 # imgur_rip
 # rips an imgur album, outputs images as <album_hash>_<image_hash>.<ext> in the current directory
 # imgur_rip <album_hash>
