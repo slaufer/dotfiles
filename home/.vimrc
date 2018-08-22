@@ -81,6 +81,12 @@ let g:tabman_toggle = '<leader>mt'
 let g:tabman_specials = 1
 let g:tabman_number = 0
 
+let g:ackprg = 'ag --vimgrep --smart-case'
+cnoreabbrev ag Ack
+cnoreabbrev aG Ack
+cnoreabbrev Ag Ack
+cnoreabbrev AG Ack
+
 " platform-specific stuff
 if has('gui_running') " gui stuff
 	if has('win32')
