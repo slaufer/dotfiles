@@ -1,0 +1,75 @@
+Execute (reset indent options to initial values):
+  " so it is clear what values later tests are working with
+  setglobal noexpandtab tabstop=8 softtabstop=0 shiftwidth=8
+
+Execute (g:detectindent_preferred_indent is respected):
+  let g:detectindent_preferred_indent = 4
+  tabnew tests/fixtures/FountainMusic-FMDisplayItem.h
+  DetectIndent
+  " expect no change in expandtab
+  AssertEqual 0, &expandtab
+  " shiftwidth is 8 without the option; expect a difference
+  AssertEqual 4, shiftwidth()
+  bdelete
+  unlet g:detectindent_preferred_indent
+
+Execute (g:detectindent_min_indent is respected for space indentation):
+  let g:detectindent_min_indent = 4
+  tabnew tests/fixtures/haml-action_view.haml
+  DetectIndent
+  " expect no change in expandtab
+  AssertEqual 1, &expandtab
+  " shiftwidth is 2 without the option; expect a difference
+  AssertEqual 4, shiftwidth()
+  bdelete
+  unlet g:detectindent_min_indent
+
+Execute (g:detectindent_max_indent is respected for space indentation):
+  let g:detectindent_max_indent = 1
+  tabnew tests/fixtures/jSnake-demo.html
+  DetectIndent
+  " expect no change in expandtab
+  AssertEqual 1, &expandtab
+  " shiftwidth is 2 without the option; expect a difference
+  AssertEqual 1, shiftwidth()
+  bdelete
+  unlet g:detectindent_max_indent
+
+Execute (g:detectindent_max_indent is respected for mixed-space-and-tab indentation with a tab majority):
+  let g:detectindent_max_indent = 6
+  tabnew tests/fixtures/vared.fish
+  DetectIndent
+  " expect no change in expandtab
+  AssertEqual 0, &expandtab
+  " shiftwidth should be 8 (though is currently 40) without the option; expect a difference
+  AssertEqual 6, shiftwidth()
+  bdelete
+  unlet g:detectindent_max_indent
+
+Execute (g:detectindent_max_indent is ignored in favor of global options for pure-tab indentation):
+  " TODO decide whether this behavior is desirable
+  " To decide whether it is desirable, I need to know why you would ever set this option at all. Is it because you don’t trust DetectIndent and want to limit its damage? Or because you work with some files with bad indentation standards that you don’t want to follow when you edit? Check Git history for clues.
+  " It was added as a counterpart to min_indent, by someone else later. I don’t know whether they found it useful or just wanted symmetry. The suggested value of 8 suggests that they might have found it useful. (But what file would imply more than 8 spaces, yet deserve a value of 8?)
+  " min_indent was added with the suggestion of 2. I think it was a workaround for the value sometimes wrongly being 1. But I think it may be justified. There *might* be 1-space files out there, so I shouldn't hard code it out, right? That is, 1-space files that people regularly work with, enough to make it worth it to support it by default. Otherwise I should just hard-code the minimum of 2 in there myself, and tell those weird 1-spacers to set it manually.
+  let g:detectindent_max_indent = 6
+  tabnew tests/fixtures/general-level-1.indentc
+  DetectIndent
+  " expect no change in expandtab
+  AssertEqual 0, &expandtab
+  " expect no change in shiftwidth
+  AssertEqual 8, shiftwidth()
+  bdelete
+  unlet g:detectindent_max_indent
+
+" I won’t bother to do a permutation with g:detectindent_min_indent and tab indentation
+
+Execute (g:detect_min_indent and max_indent, when combined, override too-low detected indentation):
+  let g:detectindent_min_indent = 3
+  let g:detectindent_max_indent = 4
+  tabnew tests/fixtures/jSnake-demo.html
+  DetectIndent
+  " shiftwidth is 2 without the two options; expect min_indent to be the deciding factor
+  AssertEqual 3, shiftwidth()
+  unlet g:detectindent_min_indent
+  unlet g:detectindent_max_indent
+  bdelete

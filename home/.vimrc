@@ -20,29 +20,11 @@ vmap <F10> <esc>:tabnext<cr>
 nnoremap <leader>mu :UndotreeToggle<cr>
 nnoremap <leader>ms :SignatureToggle<cr>
 
-" j/k/l/; -- Normal mode cursor movement
-nnoremap ; l
-nnoremap l k
-nnoremap k j
-nnoremap j h
-
-" Alt+j/k/l/; -- Switch windows
-nnoremap <a-j> <C-w><Left>
-nnoremap <a-k> <C-w><Down>
-nnoremap <a-l> <C-w><Up>
-nnoremap <a-;> <C-w><Right>
-
 " Alt+Shift+j/k/l/; -- Scroll viewport left/down/up/right (normal mode)
 nnoremap <a-s-j> 5zh
 nnoremap <a-s-k> 3<c-e>
 nnoremap <a-s-l> 3<c-y>
 nnoremap <a-:> 5zl
-
-" Alt+Shift+j/k/l/; -- Resize viewport left/down/up/right (normal mode)
-" nnoremap <a-s-j> :vertical resize -1<cr>
-" nnoremap <a-s-k> :resize -1<cr>
-" nnoremap <a-s-l> :resize +1<cr>
-" nnoremap <a-:> :vertical resize +1<cr>
 
 " Ctrl+J -- Insert newline (normal mode)
 nnoremap <C-j> i<CR><ESC>
@@ -69,25 +51,59 @@ set scrolloff=5
 set colorcolumn=121
 syntax on
 
-" plugin settings
+"""""""""""""""""""
+" PLUGIN SETTINGS "
+"""""""""""""""""""
+
+" easymotion
 let g:EasyMotion_smartcase = 1
+
+" nerd tree
 let NERDTreeShowHidden = 1
+
+" ctrl-p
 let g:ctrlp_working_path_mode = '0'
 let g:ctrlp_custom_ignore = 'node_modules\|.git\|.idea\|nytprof'
+
+" indentline
 let g:indentLine_setColors = 0
 let g:indentLine_char = '|'
 
+" tabman
 let g:tabman_toggle = '<leader>mt'
 let g:tabman_specials = 1
 let g:tabman_number = 0
 
-let g:ackprg = 'ag --vimgrep --smart-case'
+" ag support for ack.vim
+if executable('ag')
+	let g:ackprg = 'ag --vimgrep --smart-case'
+endif
 cnoreabbrev ag Ack
 cnoreabbrev aG Ack
 cnoreabbrev Ag Ack
 cnoreabbrev AG Ack
 
-" platform-specific stuff
+" javacomplete2
+autocmd FileType java setlocal omnifunc=javacomplete#Complete
+
+" vebugger
+nnoremap <Leader>db       :VBGtoggleBreakpointThisLine<CR>
+nnoremap <Leader>du       :VBGstepOut<CR>
+nnoremap <Leader>di       :VBGstepIn<CR>
+nnoremap <Leader>do       :VBGstepOver<CR>
+nnoremap <Leader>dc       :VBGcontinue<CR>
+nnoremap <Leader>dt       :VBGtoggleTerminalBuffer<CR>
+nnoremap <Leader>de       :VBGrawWrite 
+nnoremap <Leader>dx       :VBGkill<CR>
+nnoremap <Leader>dja      :call vebugger#jdb#attach('2181', { 'srcpath': [ 'adserver/src', 'adcore/src', 'admaster/src', 'common/src', 'src' ] })<CR>
+
+"""""""""""""""""""""
+" PLATFORM SETTINGS "
+"""""""""""""""""""""
+
+" torte #1 vim built-in color scheme for life
+color torte
+
 if has('gui_running') " gui stuff
 	if has('win32')
 		set clipboard=unnamed
@@ -97,7 +113,7 @@ if has('gui_running') " gui stuff
 		set guifont=Fira\ Mono\ 13
 	endif
 
-	color torte
+	" get rid of all those useless toolbars
 	set guioptions-=T
 	set guioptions-=e
 	set guioptions-=m
@@ -107,19 +123,17 @@ else " console stuff
 		set ttymouse=xterm2
 	endif
 
-	" figure out terminal colors
+	" if we can have lots of colors, switch to VEXING
 	if &t_Co >= 256
 		color vexing
-	elseif &t_Co >= 8
-		color torte
 	endif
 
 	behave xterm
 endif
 
-""""""""""""
-" Commands "
-""""""""""""
+"""
+""" Commands
+"""
 
 " purge non-visible buffers
 func! BPURGE()
@@ -200,3 +214,12 @@ autocmd BufNewFile,BufRead *.coffee :set syntax=coffee
 " set indentexpr=
 " filetype indent off
 " filetype plugin indent off
+
+"""""""""""""""""""
+" Project Configs "
+"""""""""""""""""""
+
+if getcwd() == '/home/slaufer/repos/tads'
+	echo "hayyyyyyyy"
+	let g:JavaComplete_SourcesPath = '/home/slaufer/adserver/src/:/home/slaufer/admaster/src/:/home/slaufer/adcore/src:/home/slaufer/common/src'
+endif

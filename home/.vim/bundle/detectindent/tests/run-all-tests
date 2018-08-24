@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# format adapted from https://github.com/junegunn/vader.vim#setting-up-isolated-testing-environment
+
+vim -u tests/basic_vimrc_for_test_running -c "Vader! tests/*.vader"

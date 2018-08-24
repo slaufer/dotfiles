@@ -1,0 +1,13 @@
+Execute (reset indent options to initial values):
+  " so it is clear what values later tests are working with
+  setglobal noexpandtab tabstop=8 softtabstop=0 shiftwidth=8
+
+Execute (check that all four options are changed to a correct value):
+  tabnew tests/fixtures/parslet-scope.rb
+  DetectIndent
+  AssertEqual 1, &expandtab
+  AssertEqual 2, &tabstop
+  " the values of 'sts' and 'sw' can be different depending on the values that this version of Vim supports
+  Assert &softtabstop == -1 || &softtabstop == 2, "softtabstop was not set correctly"
+  Assert &shiftwidth == 0 || &shiftwidth == 2, "shiftwidth was not set correctly"
+  bdelete

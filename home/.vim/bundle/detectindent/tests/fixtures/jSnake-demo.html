@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/javascript" src="scripts/jquery1.3min.js"></script>
+		<script type="text/javascript" src="scripts/jqueryui.js"></script>    
+		<script type="text/javascript" src="scripts/snake3.js"></script>
+		<script type="text/javascript">
+
+    var snake_width = 20;
+    var snake_timeout = 100;
+
+      $(document).ready(function(){
+        
+        
+        // Load 5 CPU snakes, each 1second apart, at load.
+        snakes.push(new Snake({width:snake_width, timeout:snake_timeout}));
+        
+        $('button.clear').click(function(){
+          fade.stop();
+          fade = false; 
+          $.each(snakes, function(i, s){s.stop()}); 
+          
+          $('h1, h2, pre').fadeTo(100, 1); 
+        });
+      })
+
+    </script>
+  	<script type="text/javascript">
+      snakes = [];
+      fade  = false;
+      function doFade(){
+        if(!fade){
+          fade = $('h1, h2, pre').fadeTo(10000, 0.2); 
+        }
+      }
+      $('button.clear').click(doFade)
+    </script>
+    <link rel="stylesheet" type="text/css" href="css/snake.css">
+  </head>
+
+  <body>
+    <p class="name">
+      <button class="fade" onclick="snakes.push(new Snake({width: snake_width, timeout: snake_timeout }))"                                         title="Release the snakes.">Release the snakes.</button>
+      <button class="fade" onclick="snakes.push(new Snake({width: snake_width, timeout: snake_timeout, skynet_only:true, colour:'#999999'}))"     title="Release a CPU-only snake.">Release a CPU-only snake.</button>
+      <button class="fade" onclick="snakes.push(new Snake({width: snake_width, timeout: snake_timeout, human_only:true, keys:'wasd'}))"           title="Release a WASD snake.">Release a WASD snake.</button>
+      <button class="fade" onclick="snakes.push(new Snake({width: snake_width, timeout: snake_timeout, human_only:true, keys:'ijkl'}))"           title="Release an IJKL snake.">Release an IJKL snake.</button>
+      <button class="fade" onclick="snakes.push(new Snake({width: snake_width, timeout: snake_timeout, human_only:true, keys:'arrows'}))"         title="Release an arrow-key snake.">Release an arrow-key snake.</button>
+      <button class="fade" onclick="snakes.push(new Snake({width: snake_width, timeout: snake_timeout, human_only:true, keys:'keypad'}))"         title="Release a number-pad snake.">Release a number-pad snake.</button>
+      <button onclick="doFade();
+        for(i=0;i<5;i++){
+          snakes.push(new Snake({width: snake_width, timeout: snake_timeout, skynet_only: true}));
+        }
+      "  title="Release 5 snakes.">Release 5 snakes.</button>
+      <button class="clear" title="Clear all snakes.">Stop this nonsense!</button>
+      
+      <br>
+      <button class="" title="Hard" onclick=" $.each(snakes, function(i, s){s.stop()}); 
+        snake_width = 15; 
+        snake_timeout = 50; 
+        fruit = false;
+        snakes.push(new Snake({width: snake_width, timeout: snake_timeout}))
+      ">Hard mode</button>
+      <button class="" title="Easy" onclick=" 
+        $.each(snakes, function(i, s){s.stop()}); 
+        snake_width = 30; 
+        snake_timeout = 150; 
+        fruit = false;
+        snakes.push(new Snake({width: snake_width, timeout: snake_timeout}))
+      ">Easy mode</button>
+      <button class="" title="Normal" onclick=" $.each(snakes, function(i, s){s.stop()}); 
+        snake_width = 20; 
+        snake_timeout = 100; 
+        fruit = false;
+        snakes.push(new Snake({width: snake_width, timeout: snake_timeout}))
+      ">Normal mode</button>
+      
+      <button class="" title="Chase the mouse!" onclick="
+        $.each(snakes, function(i, s){s.stop()}); 
+        
+        fruit = false;
+        
+        snakes.push(new Snake({ width: snake_width, timeout: snake_timeout, mouse_chasing: true, skynet_only: true }))
+      ">Chase the mouse!</button>
+    </p>
+    

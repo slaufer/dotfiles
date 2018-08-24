@@ -1,0 +1,57 @@
+*detectindent.txt*        The Detect Indent Plugin             1.0, Jan 04, 2005
+
+Authors:  Ciaran McCreesh <ciaran.mccreesh at googlemail.com>,
+          Rory O’Kane <rory@roryokane.com>
+
+==============================================================================
+1. Contents                             *detectindent* *detectindent-contents*
+
+    1. Contents                                    |detectindent-contents|
+    2. :DetectIndent Command                               |:DetectIndent|
+        Settings                                   |detectindent-settings|
+    3. Uptime ChangeLog                                 |uptime-changelog|
+
+==============================================================================
+2. :DetectIndent Command                                       *:DetectIndent*
+
+        The :DetectIndent command tries to intelligently set the 'shiftwidth',
+        'expandtab' and 'tabstop' options based upon the existing settings in
+        use in the active buffer.
+
+    Settings                                           *detectindent-settings*
+
+                                             *g:detectindent_preferred_indent*
+        To set a preferred value for 'shiftwidth' and 'tabstop' when they
+        cannot be automatically detected, set: >
+                :let g:detectindent_preferred_indent = 4
+<        in your |vimrc| file.
+
+                                         *g:detectindent_max_lines_to_analyse*
+        To set limit for number of lines that will be analysed set: >
+                :let g:detectindent_max_lines_to_analyse = 1024
+<        in your |vimrc| file.
+
+                                                   *g:detectindent_min_indent*
+        To set a lower bound for the detected indent value: >
+                :let g:detectindent_min_indent = 2
+<        in your |vimrc| file.
+
+                                                   *g:detectindent_max_indent*
+        To set an upper bound for the detected indent value: >
+                :let g:detectindent_max_indent = 8
+<        in your |vimrc| file.
+
+==============================================================================
+3. DetectIndent ChangeLog                             *detectindent-changelog*
+
+        v?
+            * Written records were not kept after the first release. However,
+              the history of changes can be understood by reading the version
+              control history of this Git repository. Also, README.md’s
+              “About this fork” section lists the changes since the project
+              was forked.
+        v1.0 (20050105)
+            * initial release after discussion on irc.freenode.net:#vim
+
+==============================================================================
+vim:tw=78:et:sts=8:ts=8:ft=help
