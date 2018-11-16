@@ -131,9 +131,9 @@ else " console stuff
 	behave xterm
 endif
 
-"""
-""" Commands
-"""
+""""""""""""
+" Commands "
+""""""""""""
 
 " purge non-visible buffers
 func! BPURGE()
@@ -183,43 +183,24 @@ func! XCLIP(...)
 endfun
 com! -nargs=* Xcb call XCLIP(<f-args>)
 
+func! SETINDENT(...)
+	set nosmartindent
+	let &ts=a:2
+	let &sw=a:2
+
+	if (a:1[0] == "t")
+		set noexpandtab
+	elseif (a:1[0] == "s")
+		set expandtab
+	endif
+endfun
+com! -nargs=+ SetIndent call SETINDENT(<f-args>)
+com! -nargs=+ In call SETINDENT(<f-args>)
+
 """"""""""
 " Events "
 """"""""""
 
-" dear vim: there is absolutely no situation where i want textwidth to be anything other than 0
 autocmd FileType * :set textwidth=0
 autocmd BufNewFile,BufRead *.coffee :set syntax=coffee
 
-" when multiple files are opened from the command line, show them all in tabs
-" FIXME: syntax highlighting is not turned on in any tab(/buffer?) except the first
-" NEVERMIND: this just shittily reproduces the behavior of the -p flag
-" func! VimEnterShowBuffers()
-"	if (argc() > 1)
-"		tab sba
-"	endif
-" endfun
-" autocmd VimEnter * :call VimEnterShowBuffers()
-
-"""""""""""""""""
-" Indent Config "
-"""""""""""""""""
-
-" this config has to come last, because otherwise it *will* get clobbered.
-" set tabstop=4
-" set shiftwidth=4
-" set nocindent
-" set nosmartindent
-" set noautoindent
-" set indentexpr=
-" filetype indent off
-" filetype plugin indent off
-
-"""""""""""""""""""
-" Project Configs "
-"""""""""""""""""""
-
-if getcwd() == '/home/slaufer/repos/tads'
-	echo "hayyyyyyyy"
-	let g:JavaComplete_SourcesPath = '/home/slaufer/adserver/src/:/home/slaufer/admaster/src/:/home/slaufer/adcore/src:/home/slaufer/common/src'
-endif
