@@ -21,27 +21,86 @@ const netModule = async () => {
     network.get_interfaces_list((err, obj) => (err ? reject(err) : resolve(obj)))
   );
 
+  const stats = await Promise.all(
+    ifaces.map(({ name, ip_address }) => new Promise(
+      (resolve, reject) => si.networkStats(name, stats => resolve({ ...stats, ip_address }) )
+    ))
+  );
+
+  return stats.reduce((acc, iface) => {
+    acc.push(
+      {
+        name: "net",
+        instance: `${iface.iface}-label`,
+        full_text: iface.iface,
+        separator: false
+      },
+      {
+        name: "net",
+        instance: `${iface.iface}-ip`,
+        full_text: iface.ip_address,
+        color: iface.operstate === "up" ? "#00ff00" : "#ff0000",
+        separator: false
+      },
+      {
+        name: "net",
+        instance: `${iface.iface}-rxlabel`,
+        full_text: "\u25bc",
+        separator: false
+      },
+      {
+        name: "net",
+        instance: `${iface.iface}-rx`,
+        full_text: leftpad(filesize(Math.round(iface.rx_sec), { standard: "iec", round: 0 }), 8, ' '),
+        color: "#ff0000",
+        separator: false
+      },
+      {
+        name: "net",
+        instance: `${iface.iface}-txlabel`,
+        full_text: "\u25b2",
+        separator: false
+      },
+      {
+        name: "net",
+        instance: `${iface.iface}-tx`,
+        full_text: leftpad(filesize(Math.round(iface.tx_sec), { standard: "iec", round: 0 }), 8, ' '),
+        color: "#00ff00"
+      }
+    );
+    return acc;
+  }, []);
+
   return ifaces.map(iface => ({ name: "net", instance: iface.name, full_text: `${iface.name}: ${iface.ip_address}` }));
 };
 
-const diskModule = async (...paths) => [
-  { name: "disk", instance: "label", full_text: "disk", separator: false },
-  ...await Promise.all(
-    paths.map(async (path, i, arr) => {
-      const { available, total } = await new Promise((resolve, reject) =>
-        disk.check(path, (err, obj) => (err ? reject(err) : resolve(obj)))
-      );
+const diskModule = async (...paths) => {
+  const mounts = await Promise.all(
+    paths.map(
+      path => new Promise((res, rej) => disk.check(path, (err, obj) => (err ? rej(err) : res({ path, ...obj }))))
+    )
+  );
 
-      return {
+  return mounts.reduce((acc, mount, i, arr) => {
+    acc.push(
+      {
         name: "disk",
-        instance: path,
-        color: grad(1 - (total - available) / total),
-        full_text: `${path}: ${filesize(available, { standard: "iec" })}`,
+        instance: `${mount.path}-label`,
+        full_text: `${mount.path}:`,
+        separator: false
+      },
+      {
+        name: "disk",
+        instance: mount.path,
+        color: grad(1 - (mount.total - mount.available) / mount.total),
+        full_text: leftpad(filesize(mount.available, { standard: "iec" }), 11, ' '),
         separator: i === arr.length - 1
-      };
-    })
-  )
-]
+      }
+    );
+
+    return acc;
+  }, []);
+};
 
 const cpuModule = async path => [
   { name: "cpu", instance: "label", full_text: "cpu", separator: false },
@@ -49,10 +108,10 @@ const cpuModule = async path => [
     name: "cpu",
     instance: `cpu${i}`,
     color: grad(load_idle / 100),
-    full_text: Math.round(100 - load_idle).toString(10) + "%",
+    full_text: leftpad(Math.round(100 - load_idle).toString(10) + "%", 4, ' '),
     separator: i === arr.length - 1
   }))
-]
+];
 
 const memoryModule = async () => {
   const { free, total, swapfree, swaptotal } = await new Promise(resolve => si.mem(obj => resolve(obj)));
