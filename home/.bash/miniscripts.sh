@@ -26,6 +26,13 @@ which neovim > /dev/null && alias vim='neovim'
 alias vam01="ssh vam01.slaufer"
 
 ##
+# gcd
+# cd within git repo
+function gcd {
+	cd "$(git rev-parse --show-toplevel)$1"
+}
+
+##
 # imgur_rip
 # rips an imgur album, outputs images as <album_hash>_<image_hash>.<ext> in the current directory
 # imgur_rip <album_hash>
