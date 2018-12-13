@@ -8,11 +8,30 @@ const filesize = require("filesize");
 const sleep = t => new Promise(r => setTimeout(r, t));
 const leftpad = (str, len, fill = "0") =>
   new Array(len - str.length).fill(fill).join("") + str;
-const grad = frac =>
-  `#${leftpad(Math.round((1 - frac) * 0xff).toString(16), 2)}${leftpad(
-    Math.round(frac * 0xff).toString(16),
+const parseColor = color => ({
+  r: parseInt(color.slice(1, 3), 16),
+  g: parseInt(color.slice(3, 5), 16),
+  b: parseInt(color.slice(5, 7), 16)
+});
+
+const grad = (frac, startColor = "#ff0000", endColor = "#00ff00") => {
+  const start = parseColor(startColor);
+  const end = parseColor(endColor);
+  const r = leftpad(
+    (start.r + Math.round(frac * (end.r - start.r))).toString(16),
     2
-  )}00`;
+  );
+  const g = leftpad(
+    (start.g + Math.round(frac * (end.g - start.g))).toString(16),
+    2
+  );
+  const b = leftpad(
+    (start.b + Math.round(frac * (end.b - start.b))).toString(16),
+    2
+  );
+
+  return `#${r}${g}${b}`;
+};
 
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const clockModule = async () => [
