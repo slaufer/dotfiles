@@ -1,4 +1,5 @@
 #!/usr/bin/node
+const _ = require("lodash");
 const si = require("systeminformation");
 const disk = require("diskusage");
 const process = require("process");
@@ -6,8 +7,6 @@ const strftime = require("strftime");
 const filesize = require("filesize");
 
 const sleep = t => new Promise(r => setTimeout(r, t));
-const leftpad = (str, len, fill = "0") =>
-  new Array(len - str.length).fill(fill).join("") + str;
 const parseColor = color => ({
   r: parseInt(color.slice(1, 3), 16),
   g: parseInt(color.slice(3, 5), 16),
@@ -17,17 +16,20 @@ const parseColor = color => ({
 const grad = (frac, startColor = "#ff0000", endColor = "#00ff00") => {
   const start = parseColor(startColor);
   const end = parseColor(endColor);
-  const r = leftpad(
+  const r = _.padStart(
     (start.r + Math.round(frac * (end.r - start.r))).toString(16),
-    2
+    2,
+    "0"
   );
-  const g = leftpad(
+  const g = _.padStart(
     (start.g + Math.round(frac * (end.g - start.g))).toString(16),
-    2
+    2,
+    "0"
   );
-  const b = leftpad(
+  const b = _.padStart(
     (start.b + Math.round(frac * (end.b - start.b))).toString(16),
-    2
+    2,
+    "0"
   );
 
   return `#${r}${g}${b}`;
@@ -41,6 +43,7 @@ const clockModule = async () => [
   }
 ];
 
+const netPeak = {};
 const netModule = async (...selected) => {
   const ifaces = (await si.networkInterfaces()).filter(
     iface => !selected.length || selected.includes(iface.iface)
@@ -51,8 +54,11 @@ const netModule = async (...selected) => {
       si.networkStats(iface.iface).then(stats => ({ ...iface, ...stats }))
     )
   );
-
   return stats.reduce((acc, iface) => {
+    const peak = (netPeak[iface.iface] = netPeak[iface.iface] || {});
+    peak.rx = Math.max(peak.rx || 0, iface.rx_sec);
+    peak.tx = Math.max(peak.tx || 0, iface.tx_sec);
+
     acc.push(
       {
         name: "net",
@@ -76,12 +82,12 @@ const netModule = async (...selected) => {
       {
         name: "net",
         instance: `${iface.iface}-rx`,
-        full_text: leftpad(
-          filesize(Math.round(iface.rx_sec), { standard: "iec", round: 0 }),
-          8,
-          " "
+        full_text: _.pad(
+          filesize(Math.round(iface.rx_sec), { standard: "iec", round: 2 }),
+          11
         ),
-        color: "#ff0000",
+        color: "#000000",
+        background: grad(1 - iface.rx_sec / peak.rx),
         separator: false
       },
       {
@@ -93,12 +99,12 @@ const netModule = async (...selected) => {
       {
         name: "net",
         instance: `${iface.iface}-tx`,
-        full_text: leftpad(
-          filesize(Math.round(iface.tx_sec), { standard: "iec", round: 0 }),
-          8,
-          " "
+        full_text: _.pad(
+          filesize(Math.round(iface.tx_sec), { standard: "iec", round: 2 }),
+          11
         ),
-        color: "#00ff00"
+        color: "#000000",
+        background: grad(1 - iface.tx_sec / peak.tx)
       }
     );
     return acc;
@@ -134,8 +140,9 @@ const diskModule = async (...paths) => {
       {
         name: "disk",
         instance: mount.path,
-        color: grad(1 - (mount.total - mount.available) / mount.total),
-        full_text: filesize(mount.available, { standard: "iec" }),
+        color: "#000000",
+        background: grad(1 - (mount.total - mount.available) / mount.total),
+        full_text: _.pad(filesize(mount.available, { standard: "iec" }), 11),
         separator: i === arr.length - 1
       }
     );
@@ -151,8 +158,9 @@ const cpuModule = async path => [
   )).cpus.map(({ load_idle }, i, arr) => ({
     name: "cpu",
     instance: `cpu${i}`,
-    color: grad(load_idle / 100),
-    full_text: leftpad(Math.round(100 - load_idle).toString(10) + "%", 4, " "),
+    color: "#000000",
+    background: grad(load_idle / 100),
+    full_text: _.pad(Math.round(100 - load_idle).toString(10) + "%", 4),
     separator: i === arr.length - 1
   }))
 ];
@@ -171,12 +179,9 @@ const memoryModule = async () => {
     {
       name: "memory",
       instance: "memory",
-      color: grad(free / total),
-      full_text: leftpad(
-        filesize(free, { standard: "iec", round: 2 }),
-        11,
-        " "
-      ),
+      color: "#000000",
+      background: grad(free / total),
+      full_text: _.pad(filesize(free, { standard: "iec", round: 2 }), 11),
       separator: false
     },
     {
@@ -188,12 +193,9 @@ const memoryModule = async () => {
     {
       name: "memory",
       instance: "swap",
-      color: grad(swapfree / swaptotal),
-      full_text: leftpad(
-        filesize(swapfree, { standard: "iec", round: 2 }),
-        11,
-        " "
-      )
+      color: "#000000",
+      background: grad(swapfree / swaptotal),
+      full_text: _.pad(filesize(swapfree, { standard: "iec", round: 2 }), 11)
     }
   ];
 };
