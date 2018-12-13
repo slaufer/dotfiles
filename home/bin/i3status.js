@@ -83,8 +83,8 @@ const netModule = async (...selected) => {
         name: "net",
         instance: `${iface.iface}-rx`,
         full_text: _.pad(
-          filesize(Math.round(iface.rx_sec), { standard: "iec", round: 2 }),
-          11
+          filesize(Math.round(iface.rx_sec), { standard: "iec", round: 1 }),
+          10
         ),
         color: "#000000",
         background: grad(1 - iface.rx_sec / peak.rx),
@@ -100,8 +100,8 @@ const netModule = async (...selected) => {
         name: "net",
         instance: `${iface.iface}-tx`,
         full_text: _.pad(
-          filesize(Math.round(iface.tx_sec), { standard: "iec", round: 2 }),
-          11
+          filesize(Math.round(iface.tx_sec), { standard: "iec", round: 1 }),
+          10
         ),
         color: "#000000",
         background: grad(1 - iface.tx_sec / peak.tx)
@@ -160,8 +160,9 @@ const cpuModule = async path => [
     instance: `cpu${i}`,
     color: "#000000",
     background: grad(load_idle / 100),
-    full_text: _.pad(Math.round(100 - load_idle).toString(10) + "%", 4),
-    separator: i === arr.length - 1
+    full_text: _.pad(Math.round(100 - load_idle).toString(10), 3),
+    separator: i === arr.length - 1,
+    separator_block_width: i === arr.length - 1 ? undefined : 0
   }))
 ];
 
@@ -181,7 +182,7 @@ const memoryModule = async () => {
       instance: "memory",
       color: "#000000",
       background: grad(free / total),
-      full_text: _.pad(filesize(free, { standard: "iec", round: 2 }), 11),
+      full_text: _.pad(filesize(free, { standard: "iec", round: 1 }), 10),
       separator: false
     },
     {
@@ -195,7 +196,7 @@ const memoryModule = async () => {
       instance: "swap",
       color: "#000000",
       background: grad(swapfree / swaptotal),
-      full_text: _.pad(filesize(swapfree, { standard: "iec", round: 2 }), 11)
+      full_text: _.pad(filesize(swapfree, { standard: "iec", round: 1 }), 10)
     }
   ];
 };
