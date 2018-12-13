@@ -6,6 +6,6 @@ font pango:Inconsolata 11
 # finds out, if available)
 bar {
         tray_output VGA-0
-        status_command i3status 
+        status_command i3status.js
 }
 

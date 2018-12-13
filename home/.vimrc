@@ -204,3 +204,4 @@ com! -nargs=+ In call SETINDENT(<f-args>)
 autocmd FileType * :set textwidth=0
 autocmd BufNewFile,BufRead *.coffee :set syntax=coffee
 
+In s 2
