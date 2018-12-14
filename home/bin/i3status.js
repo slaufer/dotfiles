@@ -1,7 +1,7 @@
 #!/usr/bin/node
 const _ = require("lodash");
 const si = require("systeminformation");
-const disk = require("diskusage");
+const diskusage = require("diskusage");
 const process = require("process");
 const strftime = require("strftime");
 const filesize = require("filesize");
@@ -75,34 +75,23 @@ const netModule = async (...selected) => {
       },
       {
         name: "net",
-        instance: `${iface.iface}-rxlabel`,
-        full_text: "\u25bc",
-        separator: false
-      },
-      {
-        name: "net",
         instance: `${iface.iface}-rx`,
-        full_text: _.pad(
+        full_text: `\u25bc${_.pad(
           filesize(Math.round(iface.rx_sec), { standard: "iec", round: 1 }),
           10
-        ),
+        )}`,
         color: "#000000",
         background: grad(1 - iface.rx_sec / peak.rx),
-        separator: false
-      },
-      {
-        name: "net",
-        instance: `${iface.iface}-txlabel`,
-        full_text: "\u25b2",
-        separator: false
+        separator: false,
+        separator_block_width: 0
       },
       {
         name: "net",
         instance: `${iface.iface}-tx`,
-        full_text: _.pad(
+        full_text: `\u25b2${_.pad(
           filesize(Math.round(iface.tx_sec), { standard: "iec", round: 1 }),
           10
-        ),
+        )}`,
         color: "#000000",
         background: grad(1 - iface.tx_sec / peak.tx)
       }
@@ -117,86 +106,59 @@ const netModule = async (...selected) => {
   }));
 };
 
-const diskModule = async (...paths) => {
+const diskModule = async (...disks) => {
   const mounts = await Promise.all(
-    paths.map(
-      path =>
-        new Promise((res, rej) =>
-          disk.check(path, (err, obj) =>
-            err ? rej(err) : res({ path, ...obj })
-          )
-        )
+    disks.map(disk =>
+      diskusage.check(disk.path).then(info => ({ ...info, ...disk }))
     )
   );
 
   return mounts.reduce((acc, mount, i, arr) => {
-    acc.push(
-      {
-        name: "disk",
-        instance: `${mount.path}-label`,
-        full_text: mount.path,
-        separator: false
-      },
-      {
-        name: "disk",
-        instance: mount.path,
-        color: "#000000",
-        background: grad(1 - (mount.total - mount.available) / mount.total),
-        full_text: _.pad(filesize(mount.available, { standard: "iec" }), 11),
-        separator: i === arr.length - 1
-      }
-    );
+    acc.push({
+      name: "disk",
+      instance: mount.label,
+      color: "#000000",
+      background: grad(1 - (mount.total - mount.available) / mount.total),
+      full_text: ` ${mount.label} `,
+      separator: i === arr.length - 1,
+      separator_block_width: i === arr.length - 1 ? undefined : 0
+    });
 
     return acc;
   }, []);
 };
 
-const cpuModule = async path => [
-  { name: "cpu", instance: "label", full_text: "cpu", separator: false },
-  ...(await new Promise(resolve =>
-    si.currentLoad(load => resolve(load))
-  )).cpus.map(({ load_idle }, i, arr) => ({
+const cpuModule = async path =>
+  si.currentLoad().then(load => load.cpus.map(({ load_idle }, i, arr) => ({
     name: "cpu",
     instance: `cpu${i}`,
     color: "#000000",
     background: grad(load_idle / 100),
-    full_text: _.pad(Math.round(100 - load_idle).toString(10), 3),
+    full_text: ` ${i} `,
     separator: i === arr.length - 1,
     separator_block_width: i === arr.length - 1 ? undefined : 0
-  }))
-];
+  })));
 
 const memoryModule = async () => {
-  const { free, total, swapfree, swaptotal } = await new Promise(resolve =>
+  const { available, total, swapfree, swaptotal } = await new Promise(resolve =>
     si.mem(obj => resolve(obj))
   );
   return [
     {
       name: "memory",
-      instance: "memlabel",
-      full_text: "mem",
-      separator: false
-    },
-    {
-      name: "memory",
       instance: "memory",
       color: "#000000",
-      background: grad(free / total),
-      full_text: _.pad(filesize(free, { standard: "iec", round: 1 }), 10),
-      separator: false
-    },
-    {
-      name: "memory",
-      instance: "swaplabel",
-      full_text: "swap",
-      separator: false
+      background: grad(available / total),
+      full_text: " m ",
+      separator: false,
+      separator_block_width: 0
     },
     {
       name: "memory",
       instance: "swap",
       color: "#000000",
       background: grad(swapfree / swaptotal),
-      full_text: _.pad(filesize(swapfree, { standard: "iec", round: 1 }), 10)
+      full_text: " s "
     }
   ];
 };
@@ -210,8 +172,11 @@ const main = async () => {
       "," +
         JSON.stringify(
           (await Promise.all([
-            diskModule("/", "/media/sf_Downloads"),
             netModule("enp0s3"),
+            diskModule(
+              { path: "/", label: "/" },
+              { path: "/media/sf_Downloads", label: "dl" }
+            ),
             memoryModule(),
             cpuModule(),
             clockModule()
