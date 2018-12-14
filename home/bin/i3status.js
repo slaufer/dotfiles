@@ -58,7 +58,7 @@ const netModule = async (...selected) => {
       {
         name: "net",
         instance: `${iface.iface}-ip`,
-        full_text: iface.ip4,
+        full_text: iface.ip4 || iface.ip6,
         color: iface.operstate === "up" ? "#00ff00" : "#ff0000",
         separator: false
       },
