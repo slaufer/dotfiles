@@ -82,7 +82,8 @@ const netModule = async (...selected) => {
           10
         )}`,
         color: "#000000",
-        background: grad(1 - iface.tx_sec / peak.tx)
+        background: grad(1 - iface.tx_sec / peak.tx),
+        separator: false
       }
     );
     return acc;
@@ -109,7 +110,7 @@ const diskModule = async (...disks) => {
       color: "#000000",
       background: grad(1 - (mount.total - mount.available) / mount.total),
       full_text: ` ${mount.label} `,
-      separator: i === arr.length - 1,
+      separator: false,
       separator_block_width: i === arr.length - 1 ? undefined : 0
     });
 
@@ -125,7 +126,7 @@ const cpuModule = async path =>
       color: "#000000",
       background: grad(load_idle / 100),
       full_text: ` ${i} `,
-      separator: i === arr.length - 1,
+      separator: false,
       separator_block_width: i === arr.length - 1 ? undefined : 0
     }))
   );
@@ -149,7 +150,8 @@ const memoryModule = async () => {
       instance: "swap",
       color: "#000000",
       background: grad(swapfree / swaptotal),
-      full_text: " s "
+      full_text: " s ",
+      separator: false
     }
   ];
 };
