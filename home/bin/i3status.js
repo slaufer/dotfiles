@@ -6,32 +6,21 @@ const process = require("process");
 const strftime = require("strftime");
 const filesize = require("filesize");
 
-const sleep = t => new Promise(r => setTimeout(r, t));
 const parseColor = color => ({
   r: parseInt(color.slice(1, 3), 16),
   g: parseInt(color.slice(3, 5), 16),
   b: parseInt(color.slice(5, 7), 16)
 });
 
+const getColor = (frac, start, end) =>
+  _.padStart((start + Math.round(frac * (end - start))).toString(16), 2, "0");
+
 const grad = (frac, startColor = "#ff0000", endColor = "#00ff00") => {
   const start = parseColor(startColor);
   const end = parseColor(endColor);
-  const r = _.padStart(
-    (start.r + Math.round(frac * (end.r - start.r))).toString(16),
-    2,
-    "0"
-  );
-  const g = _.padStart(
-    (start.g + Math.round(frac * (end.g - start.g))).toString(16),
-    2,
-    "0"
-  );
-  const b = _.padStart(
-    (start.b + Math.round(frac * (end.b - start.b))).toString(16),
-    2,
-    "0"
-  );
-
+  const r = getColor(frac, start.r, end.r)
+  const g = getColor(frac, start.g, end.g)
+  const b = getColor(frac, start.b, end.b)
   return `#${r}${g}${b}`;
 };
 
@@ -129,15 +118,17 @@ const diskModule = async (...disks) => {
 };
 
 const cpuModule = async path =>
-  si.currentLoad().then(load => load.cpus.map(({ load_idle }, i, arr) => ({
-    name: "cpu",
-    instance: `cpu${i}`,
-    color: "#000000",
-    background: grad(load_idle / 100),
-    full_text: ` ${i} `,
-    separator: i === arr.length - 1,
-    separator_block_width: i === arr.length - 1 ? undefined : 0
-  })));
+  si.currentLoad().then(load =>
+    load.cpus.map(({ load_idle }, i, arr) => ({
+      name: "cpu",
+      instance: `cpu${i}`,
+      color: "#000000",
+      background: grad(load_idle / 100),
+      full_text: ` ${i} `,
+      separator: i === arr.length - 1,
+      separator_block_width: i === arr.length - 1 ? undefined : 0
+    }))
+  );
 
 const memoryModule = async () => {
   const { available, total, swapfree, swaptotal } = await new Promise(resolve =>
@@ -183,7 +174,7 @@ const main = async () => {
           ])).reduce((acc, sections) => [...acc, ...sections], [])
         )
     );
-    await sleep(1000);
+    await new Promise(r => setTimeout(r, 1000))
   }
 };
 
