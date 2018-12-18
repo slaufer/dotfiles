@@ -6,7 +6,7 @@
 # git aliases
 alias gst='git status'
 alias gfe='git fetch && git pull origin $(git rev-parse --abbrev-ref HEAD)'
-alias gl='git log --graph --pretty="%Cgreen%h %Cred%an: %Creset%s"'
+alias gl='git log --graph --pretty="%Cgreen%h %Cblue%cr %Cred%an: %Creset%s"'
 alias gla='git log --graph --all --pretty="%Cgreen%h %Cred%an: %Creset%s"'
 
 ##
