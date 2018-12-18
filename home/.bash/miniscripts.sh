@@ -24,6 +24,8 @@ which neovim > /dev/null && alias vim='neovim'
 ##
 # ssh aliases
 alias vam01="ssh vam01.slaufer"
+alias contango-ci="ssh contango01.cap.ci"
+alias contango-qa="ssh contango01.cap.qa"
 
 ##
 # gcd
