@@ -6,7 +6,7 @@
 # git aliases
 alias gst='git status'
 alias gfe='git fetch && git pull origin $(git rev-parse --abbrev-ref HEAD)'
-alias gl='git log --graph --pretty="%Cgreen%h %Cred%an: %Creset%s"'
+alias gl='git log --graph --pretty="%Cgreen%h %Cblue%cr %Cred%an: %Creset%s"'
 alias gla='git log --graph --all --pretty="%Cgreen%h %Cred%an: %Creset%s"'
 
 ##
@@ -24,6 +24,8 @@ which neovim > /dev/null && alias vim='neovim'
 ##
 # ssh aliases
 alias vam01="ssh vam01.slaufer"
+alias contango-ci="ssh contango01.cap.ci"
+alias contango-qa="ssh contango01.cap.qa"
 
 ##
 # gcd
