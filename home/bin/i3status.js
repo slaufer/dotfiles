@@ -15,12 +15,12 @@ const parseColor = color => ({
 const getColor = (frac, start, end) =>
   _.padStart((start + Math.round(frac * (end - start))).toString(16), 2, "0");
 
-const grad = (frac, startColor = "#ff0000", endColor = "#00ff00") => {
+const grad = (frac, startColor = "#ff4444", endColor = "#44ff44") => {
   const start = parseColor(startColor);
   const end = parseColor(endColor);
-  const r = getColor(frac, start.r, end.r)
-  const g = getColor(frac, start.g, end.g)
-  const b = getColor(frac, start.b, end.b)
+  const r = getColor(frac, start.r, end.r);
+  const g = getColor(frac, start.g, end.g);
+  const b = getColor(frac, start.b, end.b);
   return `#${r}${g}${b}`;
 };
 
@@ -156,31 +156,52 @@ const memoryModule = async () => {
   ];
 };
 
-const main = async () => {
+const main = async (modules, options) => {
   console.log(JSON.stringify({ version: 1 }));
   console.log("[\n[]");
 
+  modules.forEach(module => module.last = 0);
+
+  const { interval = 1000 } = options;
+  const data = [];
+
   while (true) {
-    console.log(
-      "," +
-        JSON.stringify(
-          (await Promise.all([
-            netModule("enp0s3"),
-            diskModule(
-              { path: "/", label: "/" },
-              { path: "/media/sf_Downloads", label: "dl" }
-            ),
-            memoryModule(),
-            cpuModule(),
-            clockModule()
-          ])).reduce((acc, sections) => [...acc, ...sections], [])
-        )
-    );
-    await new Promise(r => setTimeout(r, 1000))
+    const now = Date.now();
+
+    modules.forEach((module, i) => {
+      if (module.last + module.interval > now) {
+        return;
+      }
+
+      const args = module.args || [];
+      module.fn(...args).then(output => data[i] = output);
+      module.last = now;
+    });
+
+    console.log("," + JSON.stringify(_.flatten(data)));
+
+    await new Promise(r => setTimeout(r, interval));
   }
 };
 
-main().then(
+const modules = [
+  { fn: netModule, args: ["enp0s3"], interval: 1000 },
+  {
+    fn: diskModule,
+    args: [
+      { path: "/", label: "/" },
+      { path: "/media/sf_Downloads", label: "dl" }
+    ],
+    interval: 15000
+  },
+  { fn: memoryModule, interval: 500 },
+  { fn: cpuModule, interval: 500 },
+  { fn: clockModule, interval: 1000 }
+];
+
+const options = { interval: 250 };
+
+main(modules, options).then(
   () => process.exit(0),
   e => {
     console.error(e);
