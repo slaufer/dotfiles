@@ -48,5 +48,6 @@ shopt -s histappend
 PROMPT_COMMAND="${OLDPC}history -a; history -n"
 
 export NODE_PATH=$(npm root --quiet -g)
+export PERL5LIB="$HOME/.cpan:$PERL5LIB"
 
 return 0

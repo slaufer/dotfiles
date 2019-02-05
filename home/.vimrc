@@ -203,5 +203,7 @@ com! -nargs=+ In call SETINDENT(<f-args>)
 
 autocmd FileType * :set textwidth=0
 autocmd BufNewFile,BufRead *.coffee :set syntax=coffee
+" vim's json syntax defs suck so much
+autocmd BufNewFile,BufRead *.json :set syntax=javascript
 
 In s 2
