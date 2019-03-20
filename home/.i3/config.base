@@ -22,7 +22,7 @@ set $mod Mod4
 floating_modifier $mod
 
 # assorted launchers
-bindsym $mod+Return exec rxvt-unicode
+bindsym $mod+Return exec st
 bindsym $mod+b exec google-chrome-stable
 bindsym $mod+Shift+b exec iceweasel
 bindsym $mod+p exec rox-filer

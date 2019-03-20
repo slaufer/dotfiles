@@ -183,6 +183,8 @@ func! XCLIP(...)
 endfun
 com! -nargs=* Xcb call XCLIP(<f-args>)
 
+autocmd TextYankPost * :call XCLIP(v:event.regname)
+
 func! SETINDENT(...)
 	set nosmartindent
 	let &ts=a:2
