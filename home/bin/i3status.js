@@ -5,6 +5,7 @@ const diskusage = require("diskusage");
 const process = require("process");
 const strftime = require("strftime");
 const filesize = require("filesize");
+const { execSync } = require("child_process");
 
 const parseColor = color => ({
   r: parseInt(color.slice(1, 3), 16),
@@ -156,11 +157,29 @@ const memoryModule = async () => {
   ];
 };
 
+const pulseCheckModule = async () => {
+  const matchCount = execSync("/usr/bin/pactl list")
+    .toString()
+    .split(/\n/)
+    .filter(l => /Microsoft/.test(l)).length;
+
+  return [
+    {
+      name: "pulseCheck",
+      instance: "pulseCheck",
+      color: "#000000",
+      background: matchCount > 0 ? "#44ff44" : "#ff4444",
+      full_text: " pa ",
+      separator: false
+    }
+  ];
+};
+
 const main = async (modules, options) => {
   console.log(JSON.stringify({ version: 1 }));
   console.log("[\n[]");
 
-  modules.forEach(module => module.last = 0);
+  modules.forEach(module => (module.last = 0));
 
   const { interval = 1000 } = options;
   const data = [];
@@ -174,7 +193,7 @@ const main = async (modules, options) => {
       }
 
       const args = module.args || [];
-      module.fn(...args).then(output => data[i] = output);
+      module.fn(...args).then(output => (data[i] = output));
       module.last = now;
     });
 
@@ -186,6 +205,7 @@ const main = async (modules, options) => {
 
 const modules = [
   { fn: netModule, args: ["enp0s3"], interval: 1000 },
+  { fn: pulseCheckModule, interval: 60000 },
   {
     fn: diskModule,
     args: [
@@ -199,9 +219,7 @@ const modules = [
   { fn: clockModule, interval: 1000 }
 ];
 
-const options = { interval: 250 };
-
-main(modules, options).then(
+main(modules, { interval: 250 }).then(
   () => process.exit(0),
   e => {
     console.error(e);

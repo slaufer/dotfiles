@@ -9,6 +9,8 @@ alias gfe='git fetch && git pull origin $(git rev-parse --abbrev-ref HEAD)'
 alias gl='git log --graph --pretty="%Cgreen%h %Cblue%cr %Cred%an: %Creset%s"'
 alias gla='git log --graph --all --pretty="%Cgreen%h %Cred%an: %Creset%s"'
 
+alias cb="xclip -i -selection clipboard"
+
 ##
 # other aliases
 alias decolor="sed -e 's/'$'\e''\[[0-9;]*m//g'"
