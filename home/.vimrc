@@ -49,6 +49,7 @@ set list
 set listchars=tab:\|\ ,trail:~,extends:>,precedes:<
 set scrolloff=5
 set colorcolumn=121
+set conceallevel=1
 syntax on
 
 """""""""""""""""""
@@ -68,6 +69,7 @@ let g:ctrlp_custom_ignore = 'node_modules\|.git\|.idea\|nytprof'
 " indentline
 let g:indentLine_setColors = 0
 let g:indentLine_char = '|'
+let g:indentLine_setConceal = 0
 
 " tabman
 let g:tabman_toggle = '<leader>mt'
@@ -178,7 +180,7 @@ func! XCLIP(...)
 	if (v:shell_error)
 		echo 'ERROR xclip exited with code ' . v:shell_error . ': ' . output
 	else
-		echo 'Copied contents of register ' . reg . ' to X11 clipboard '
+		echo 'Copied contents of register (' . reg . ') to X11 clipboard '
 	endif
 endfun
 com! -nargs=* Xcb call XCLIP(<f-args>)
