@@ -24,4 +24,5 @@ which nm-applet && nm-applet &
 
 # i3, the window manager of my heart
 . "$HOME/.i3/i3rc"
+# i3
 i3

@@ -34,10 +34,13 @@ const clockModule = async () => [
 ];
 
 const netPeak = {};
+let ifaces = [];
 const netModule = async (...selected) => {
-  const ifaces = (await si.networkInterfaces()).filter(
-    iface => !selected.length || selected.includes(iface.iface)
-  );
+  if (!ifaces) {
+    ifaces = (await si.networkInterfaces()).filter(
+      iface => !selected.length || selected.includes(iface.iface)
+    );
+  }
 
   const stats = await Promise.all(
     ifaces.map(iface =>
@@ -48,6 +51,8 @@ const netModule = async (...selected) => {
     const peak = (netPeak[iface.iface] = netPeak[iface.iface] || {});
     peak.rx = Math.max(peak.rx || 0, iface.rx_sec);
     peak.tx = Math.max(peak.tx || 0, iface.tx_sec);
+
+    console.log(iface);
 
     acc.push(
       {
@@ -67,7 +72,7 @@ const netModule = async (...selected) => {
         name: "net",
         instance: `${iface.iface}-rx`,
         full_text: `\u25bc${_.pad(
-          filesize(Math.round(iface.rx_sec), { standard: "iec", round: 1 }),
+          filesize(iface.rx_sec === -1 ? 0 : Math.round(iface.rx_sec), { standard: "iec", round: 1 }),
           10
         )}`,
         color: "#000000",
@@ -79,7 +84,7 @@ const netModule = async (...selected) => {
         name: "net",
         instance: `${iface.iface}-tx`,
         full_text: `\u25b2${_.pad(
-          filesize(Math.round(iface.tx_sec), { standard: "iec", round: 1 }),
+          filesize(iface.tx_sec === -1 ? 0 : Math.round(iface.tx_sec), { standard: "iec", round: 1 }),
           10
         )}`,
         color: "#000000",
@@ -157,24 +162,6 @@ const memoryModule = async () => {
   ];
 };
 
-const pulseCheckModule = async () => {
-  const matchCount = execSync("/usr/bin/pactl list")
-    .toString()
-    .split(/\n/)
-    .filter(l => /Microsoft/.test(l)).length;
-
-  return [
-    {
-      name: "pulseCheck",
-      instance: "pulseCheck",
-      color: "#000000",
-      background: matchCount > 0 ? "#44ff44" : "#ff4444",
-      full_text: " pa ",
-      separator: false
-    }
-  ];
-};
-
 const main = async (modules, options) => {
   console.log(JSON.stringify({ version: 1 }));
   console.log("[\n[]");
@@ -205,7 +192,6 @@ const main = async (modules, options) => {
 
 const modules = [
   { fn: netModule, args: ["enp0s3"], interval: 1000 },
-  { fn: pulseCheckModule, interval: 60000 },
   {
     fn: diskModule,
     args: [

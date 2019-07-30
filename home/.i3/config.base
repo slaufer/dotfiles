@@ -23,7 +23,7 @@ floating_modifier $mod
 
 # assorted launchers
 bindsym $mod+Return exec st
-bindsym $mod+b exec google-chrome-stable
+bindsym $mod+b exec google-chrome
 bindsym $mod+Shift+b exec iceweasel
 bindsym $mod+p exec rox-filer
 
