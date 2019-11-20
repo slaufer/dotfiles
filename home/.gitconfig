@@ -17,3 +17,6 @@
 	old = red bold
 	new = green bold
 	whitespace = red reverse
+[user]
+	email = slaufer@synacor.com
+	name = Scott Laufer
