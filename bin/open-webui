@@ -1,0 +1,24 @@
+#!/bin/bash
+
+socat \
+  TCP-LISTEN:11434,fork,bind=172.17.0.1 \
+  TCP:127.0.0.1:11434 &
+SOCAT_PID=$!
+
+cleanup() {
+  kill $SOCAT_PID
+  docker kill open-webui
+}
+
+trap cleanup EXIT QUIT INT TERM
+
+docker run \
+  --rm \
+  -e WEBUI_AUTH=False \
+  -p 3000:8080 \
+  --add-host=host.docker.internal:host-gateway \
+  --name open-webui \
+  --tmpfs /app/backend/data \
+  ghcr.io/open-webui/open-webui:main
+
+

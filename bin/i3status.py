@@ -1,0 +1,1 @@
+../repos/i3status.py/run.sh

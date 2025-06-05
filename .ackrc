@@ -1,0 +1,8 @@
+--pager=less -RFXS
+--color
+--sort
+
+--ignore-dir=node_modules/
+--ignore-dir=.idea/
+--ignore-dir=.git/
+
