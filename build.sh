@@ -5,6 +5,7 @@ HH=$HOME/.
 rsync -Rrlv \
   $HH/.ackrc \
   $HH/.bashrc \
+  $HH/.bashrc.prompt \
   $HH/.config/btop/ \
   $HH/.config/i3/ \ \
   $HH/.config/fastfetch/ \

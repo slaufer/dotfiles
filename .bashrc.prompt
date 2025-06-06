@@ -1,0 +1,93 @@
+# 256-color prompt for xterm-like terminals
+_PROMPT_COMMAND() {
+	# grab exit code while we can
+	local exit=$?
+  local sections=()
+
+	# TODO: make this dynamic?
+	local DIR_WIDTH=60
+
+	# start with a reset
+	local prompt="\033]0;$USER@${HOSTNAME} $(pwd)\007"
+	
+	# status line clock
+	local time=($(date '+%l:%M%P'))
+  sections+=(0 45 0 "$time")
+
+	# status line working directory
+	local dir=$(dirs +0)
+	(( ${#dir} > DIR_WIDTH )) && dir=...${dir: $((3 - DIR_WIDTH))}
+  sections+=(0 39 1 " $dir")
+
+	# git status
+	# fun fact: "local" has an exit code
+	local git_status
+  
+  git_status=$(git status -s 2> /dev/null)
+  local git_exit=$?
+
+	if (( git_exit == 0 )); then
+		# figure out status counts
+		local unstaged=$(grep -E '^.[MADRC?]' -c <<< "$git_status")
+		local staged=$(grep '^[MADRC]' -c <<< "$git_status")
+    local branch="$(git rev-parse --abbrev-ref HEAD)"
+    sections+=(-1 -1 1 " ")
+    sections+=(0 245 1 "${branch}")
+    (( unstaged )) && sections+=(0 160 1 "${unstaged}")
+    (( staged )) && sections+=(0 34 1 "${staged}")
+	fi
+
+  sections+=(-1 -1 1 "\n")
+  sections+=(0 45 0 "#\#")
+  sections+=(0 39 1 "\u@\h")
+
+  if [[ ! -z "$VIRTUAL_ENV_PROMPT" ]]; then
+    sections+=(0 25 1 $VIRTUAL_ENV_PROMPT)
+  fi
+
+  ((exit > 0)) && sections+=(0 160 1 "$exit")
+  sections+=(45 -1 1 " \$ ")
+  sections+=(-1 -1 0 " ")
+
+
+  for ((i = 0; i < ${#sections[@]}; i+=4)); do
+    fg=${sections[i]}
+    bg=${sections[i+1]}
+    sep=${sections[i+2]}
+    text="${sections[i+3]}"
+
+    if ((sep > 0)); then
+      prevbg=${sections[i-3]}
+      if ((bg >= 0 && prevbg >= 0)); then
+        prompt+="\[\e[38;5;${prevbg};48;5;${bg}m\]\ue0b0"
+      elif ((prevbg >= 0)); then
+        prompt+="\[\e[0m\e[38;5;${prevbg}m\]\ue0b0"
+      elif ((bg >= 0)); then
+        prompt+="\[\e[0m\e[38;5;${bg}m\e[7m\]\ue0b0\[\e[27m\]"
+      else
+        prompt+=" "
+      fi
+    fi
+
+    if ((bg >= 0 && fg >= 0)); then
+      prompt+="\[\e[38;5;${fg};48;5;${bg}m\]"
+    elif ((bg >= 0)); then
+      prompt+="\[\e[0m\e[48;5;${bg}m\]"
+    elif ((fg >= 0)); then
+      prompt+="\[\e[0m\e[38;5;${fg}m\]"
+    else
+      prompt+="\[\e[0m\]"
+    fi
+
+    prompt+="$text"
+  done
+
+	# interpret color codes and set the prompt	
+	PS1=$(echo -e $prompt)
+}
+
+# _PROMPT_COMMAND has to go first so it can capture $?
+PROMPT_COMMAND="_PROMPT_COMMAND; history -a; history -n"
+
+# set the titlebar
+trap '[[ "$BASH_COMMAND" == "_PROMPT_COMMAND" ]] || echo -ne "\033]0;$BASH_COMMAND $USER@${HOSTNAME} $(pwd)\007"' DEBUG
