@@ -67,13 +67,13 @@ _PROMPT_COMMAND() {
   if ((_PROMPT_EXEC_START != 0)); then
     local dur=$((prompt_mtime - _PROMPT_EXEC_START))
 
+
+    sections+=(0 34 0 "${dur}ms ")
+    
     if ((exit > 0)); then
-      sections+=(0 160 0 "$exit ")
-    else
-      sections+=(0 34 0 "$exit ")
+      sections+=(0 160 1 " $exit ")
     fi
 
-    sections+=(45 25 1 " ${dur}ms ")
     sections+=(-1 -1 1 "\n")
   fi
 
@@ -136,8 +136,10 @@ _PROMPT_COMMAND() {
 
 _PROMPT_PREEXEC_READY=0
 _PROMPT_EXEC_START=0
+_PROMPT_EXEC_CURRENT=0
 
 _PROMPT_PREEXEC() {
+  local exit=$?
   ((_PROMPT_PREEXEC_READY == 0)) && return
   [[ "$BASH_COMMAND" == "_PROMPT_COMMAND" ]] && return
   echo -ne "\033]0;$BASH_COMMAND $USER@${HOSTNAME} $(pwd)\007"
@@ -148,8 +150,12 @@ _PROMPT_PREEXEC() {
     echo -e "\e[38;5;0;48;5;34m${time} \e[38;5;34;48;5;25m\ue0b0\e[38;5;45;48;5;25m ${BASH_COMMAND} \e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
   else
     _PROMPT_EXEC_CURRENT=$(($(date +%s%N) / 1000000))
-    local time=+$((_PROMPT_EXEC_CURRENT - _PROMPT_EXEC_START))ms
-    echo -e "\e[38;5;0;48;5;34m${time} \e[38;5;34;48;5;25m\ue0b0\e[38;5;45;48;5;25m ${BASH_COMMAND} \e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
+    local time=$((_PROMPT_EXEC_CURRENT - _PROMPT_EXEC_START))ms
+    if ((exit > 0)); then
+      echo -e "\e[38;5;0;48;5;34m${time} \e[38;5;34;48;5;160m\ue0b0\e[38;5;0;48;5;160m ${exit} \e[38;5;160;48;5;25m\ue0b0\e[38;5;45;48;5;25m ${BASH_COMMAND} \e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
+    else
+      echo -e "\e[38;5;0;48;5;34m${time} \e[38;5;34;48;5;25m\ue0b0\e[38;5;45;48;5;25m ${BASH_COMMAND} \e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
+    fi
   fi
 }
 
