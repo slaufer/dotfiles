@@ -14,14 +14,29 @@ _PROMPT_RENDER() {
     sep=${sections[i+2]}
     text="${sections[i+3]}"
 
-    if ((sep > 0)); then
+    if ((i > 0)); then
       prevbg=${sections[i-3]}
+    else
+      prevbg=-1
+    fi
+
+    if ((sep == 1)); then
       if ((bg >= 0 && prevbg >= 0)); then
         prompt+="\[\e[38;5;${prevbg};48;5;${bg}m\]\ue0b0"
       elif ((prevbg >= 0)); then
         prompt+="\[\e[0m\e[38;5;${prevbg}m\]\ue0b0"
       elif ((bg >= 0)); then
         prompt+="\[\e[0m\e[38;5;${bg}m\e[7m\]\ue0b0\[\e[27m\]"
+      else
+        prompt+=" "
+      fi
+    elif ((sep == 2)); then
+      if ((bg >= 0 && prevbg >= 0)); then
+        prompt+="\[\e[38;5;${bg};48;5;${prevbg}m\]\ue0b2"
+      elif ((prevbg >= 0)); then
+        prompt+="\[\e[0m\e[38;5;${prevbg}m\e[7m\]\ue0b2\[\e[27m\]"
+      elif ((bg >= 0)); then
+        prompt+="\[\e[0m\e[38;5;${bg}m\]\ue0b2"
       else
         prompt+=" "
       fi
@@ -53,12 +68,12 @@ _PROMPT_COMMAND() {
     local dur=$((prompt_mtime - _PROMPT_EXEC_START))
 
     if ((exit > 0)); then
-      sections+=(0 160 0 "$exit")
+      sections+=(0 160 0 "$exit ")
     else
-      sections+=(0 34 0 "$exit")
+      sections+=(0 34 0 "$exit ")
     fi
 
-    sections+=(45 25 1 "${dur}ms")
+    sections+=(45 25 1 " ${dur}ms ")
     sections+=(-1 -1 1 "\n")
   fi
 
@@ -66,12 +81,17 @@ _PROMPT_COMMAND() {
 	local DIR_WIDTH=60
 	
 	# status line clock
-  sections+=(0 45 0 "$(date '+%-l:%M%P')")
+  sections+=(0 45 2 "$(date '+%-l:%M%P')")
 
 	# status line working directory
-	local dir=$(dirs +0)
-	(( ${#dir} > DIR_WIDTH )) && dir=...${dir: $((3 - DIR_WIDTH))}
-  sections+=(0 39 1 "$dir")
+  IFS=$'\n' local dirparts=($(dirs +0 | tr '/' '\n'))
+ 
+  sections+=(0 39 1 " ${dirparts[0]} ")
+
+  for ((i = 1; i < ${#dirparts[@]}; i++)); do
+    sections+=(25 39 0 "\ue0b1")
+    sections+=(0 39 0 " ${dirparts[i]} ")
+  done
 
 	# fun fact: "local" has an exit code
 	local git_status
@@ -84,15 +104,15 @@ _PROMPT_COMMAND() {
 		local staged=$(grep '^[MADRC]' -c <<< "$git_status")
     local branch="$(git rev-parse --abbrev-ref HEAD)"
     sections+=(-1 -1 1 " ")
-    sections+=(0 245 1 "${branch}")
+    sections+=(0 245 2 "${branch}")
     (( unstaged )) && sections+=(0 160 1 "${unstaged}")
     (( staged )) && sections+=(0 34 1 "${staged}")
 	fi
 
   # line break, command count, user@host
   sections+=(-1 -1 1 "\n")
-  sections+=(0 45 0 "#\#")
-  sections+=(0 39 1 "\u@\h")
+  sections+=(0 45 2 "#\#")
+  sections+=(0 39 1 " \u@\h ")
 
   # venv (if applicable)
   if [[ ! -z "$VIRTUAL_ENV_PROMPT" ]]; then
@@ -105,12 +125,13 @@ _PROMPT_COMMAND() {
 
 	local title_reset="\[\033]0;$USER@${HOSTNAME} $(pwd)\007\]"
   local prompt="$(_PROMPT_RENDER "${sections[@]}")"
-  PS1="$(echo -e "\n${title_reset}${prompt}")"
+  PS1="$(echo -e "${title_reset}${prompt}")"
 
   history -a
   history -n
 
   _PROMPT_PREEXEC_READY=1
+  _PROMPT_EXEC_START=0
 }
 
 _PROMPT_PREEXEC_READY=0
@@ -119,12 +140,17 @@ _PROMPT_EXEC_START=0
 _PROMPT_PREEXEC() {
   ((_PROMPT_PREEXEC_READY == 0)) && return
   [[ "$BASH_COMMAND" == "_PROMPT_COMMAND" ]] && return
-  _PROMPT_PREEXEC_READY=0
-  _PROMPT_EXEC_START=$(($(date +%s%N) / 1000000))
   echo -ne "\033]0;$BASH_COMMAND $USER@${HOSTNAME} $(pwd)\007"
-  local time=$(date '+%-l:%M%P')
-  time=$time
-  echo -e "\e[38;5;0;48;5;34m${time}\e[38;5;34;48;5;25m\ue0b0\e[38;5;45;48;5;25m${BASH_COMMAND}\e[0m\e[38;5;25m\ue0b0\e[0m\n"
+
+  if ((_PROMPT_EXEC_START == 0)); then
+    _PROMPT_EXEC_START=$(($(date +%s%N) / 1000000))
+    local time=$(date '+%-l:%M%P')
+    echo -e "\e[38;5;0;48;5;34m${time} \e[38;5;34;48;5;25m\ue0b0\e[38;5;45;48;5;25m ${BASH_COMMAND} \e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
+  else
+    _PROMPT_EXEC_CURRENT=$(($(date +%s%N) / 1000000))
+    local time=+$((_PROMPT_EXEC_CURRENT - _PROMPT_EXEC_START))ms
+    echo -e "\e[38;5;0;48;5;34m${time} \e[38;5;34;48;5;25m\ue0b0\e[38;5;45;48;5;25m ${BASH_COMMAND} \e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
+  fi
 }
 
 PROMPT_COMMAND="_PROMPT_COMMAND"
