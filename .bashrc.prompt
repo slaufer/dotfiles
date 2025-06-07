@@ -66,9 +66,7 @@ _PROMPT_COMMAND() {
 
   if ((_PROMPT_EXEC_START != 0)); then
     local dur=$((prompt_mtime - _PROMPT_EXEC_START))
-
-
-    sections+=(0 34 0 "${dur}ms ")
+    sections+=(0 34 0 "$(_PROMPT_HRTIME $dur)")
     
     if ((exit > 0)); then
       sections+=(0 160 1 " $exit ")
@@ -81,16 +79,20 @@ _PROMPT_COMMAND() {
 	local DIR_WIDTH=60
 	
 	# status line clock
-  sections+=(0 45 2 "$(date '+%-l:%M%P')")
+  sections+=(0 87 2 "$(date '+%-l:%M%P')")
 
 	# status line working directory
   IFS=$'\n' local dirparts=($(dirs +0 | tr '/' '\n'))
- 
-  sections+=(0 39 1 " ${dirparts[0]} ")
+
+  if [[ "${dirparts[0]}" = "" ]]; then
+    sections+=(0 45 1 " /")
+  else
+    sections+=(0 45 1 " ${dirparts[0]}")
+  fi
 
   for ((i = 1; i < ${#dirparts[@]}; i++)); do
-    sections+=(25 39 0 "\ue0b1")
-    sections+=(0 39 0 " ${dirparts[i]} ")
+    sections+=(25 45 0 "\ue0b1")
+    sections+=(0 45 0 "${dirparts[i]}")
   done
 
 	# fun fact: "local" has an exit code
@@ -108,16 +110,18 @@ _PROMPT_COMMAND() {
     (( unstaged )) && sections+=(0 160 1 "${unstaged}")
     (( staged )) && sections+=(0 34 1 "${staged}")
 	fi
+  
+  # venv (if applicable)
+  if [[ ! -z "$VIRTUAL_ENV_PROMPT" ]]; then
+    sections+=(-1 -1 1 " ")
+    sections+=(87 25 2 $(sed 's/[()]//g' <<< $VIRTUAL_ENV_PROMPT))
+  fi
 
   # line break, command count, user@host
   sections+=(-1 -1 1 "\n")
-  sections+=(0 45 2 "#\#")
-  sections+=(0 39 1 " \u@\h ")
+  sections+=(0 87 2 "#\#")
+  sections+=(0 39 1 " \u@\h")
 
-  # venv (if applicable)
-  if [[ ! -z "$VIRTUAL_ENV_PROMPT" ]]; then
-    sections+=(0 25 1 $VIRTUAL_ENV_PROMPT)
-  fi
 
   # previous exit code (if applicable), command prompt
   sections+=(45 -1 1 " \$ ")
@@ -147,17 +151,37 @@ _PROMPT_PREEXEC() {
   if ((_PROMPT_EXEC_START == 0)); then
     _PROMPT_EXEC_START=$(($(date +%s%N) / 1000000))
     local time=$(date '+%-l:%M%P')
-    echo -e "\e[38;5;0;48;5;34m${time} \e[38;5;34;48;5;25m\ue0b0\e[38;5;45;48;5;25m ${BASH_COMMAND} \e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
+    echo -e "\e[38;5;0;48;5;34m${time}\e[38;5;34;48;5;25m\ue0b0\e[38;5;87;48;5;25m ${BASH_COMMAND}\e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
   else
     _PROMPT_EXEC_CURRENT=$(($(date +%s%N) / 1000000))
-    local time=$((_PROMPT_EXEC_CURRENT - _PROMPT_EXEC_START))ms
+    local time=$(_PROMPT_HRTIME $((_PROMPT_EXEC_CURRENT - _PROMPT_EXEC_START)))
     if ((exit > 0)); then
-      echo -e "\e[38;5;0;48;5;34m${time} \e[38;5;34;48;5;160m\ue0b0\e[38;5;0;48;5;160m ${exit} \e[38;5;160;48;5;25m\ue0b0\e[38;5;45;48;5;25m ${BASH_COMMAND} \e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
+      echo -e "\e[38;5;0;48;5;34m${time}\e[38;5;34;48;5;160m\ue0b0\e[38;5;0;48;5;160m ${exit} \e[38;5;160;48;5;25m\ue0b0\e[38;5;87;48;5;25m ${BASH_COMMAND}\e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
     else
-      echo -e "\e[38;5;0;48;5;34m${time} \e[38;5;34;48;5;25m\ue0b0\e[38;5;45;48;5;25m ${BASH_COMMAND} \e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
+      echo -e "\e[38;5;0;48;5;34m${time}\e[38;5;34;48;5;25m\ue0b0\e[38;5;87;48;5;25m ${BASH_COMMAND}\e[0m\e[38;5;25m\ue0b0\e[0m\e[0K"
     fi
   fi
 }
+
+_PROMPT_HRTIME() {
+  local tv=$1 ts=""
+  local hourval=0 minval=0 secval=0 msval=0
+  local hour minute second
+  ((second = 1000))
+  ((minute = second * 60))
+  ((hour = minute * 60))
+
+  ((tv >= hour)) && ((hourval = tv / hour, tv %= hour))
+  ((tv >= minute)) && ((minval = tv / minute, tv %= minute))
+  ((tv >= second)) && ((secval = tv / second, tv %= second))
+  ((tv >= 0)) && ((msval = tv))
+
+  (($hourval)) && printf "%d:%02d:%02d.%03d" $hourval $minval $secval $msval && return
+  (($minval)) && printf "%02d:%02d.%03d" $minval $secval $msval && return
+  (($secval)) && printf "%d.%03ds" $secval $msval && return
+  printf "%dms" $msval && return
+}
+
 
 PROMPT_COMMAND="_PROMPT_COMMAND"
 trap "_PROMPT_PREEXEC" DEBUG
