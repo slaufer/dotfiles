@@ -180,23 +180,21 @@ _PROMPT_PREEXEC() {
 # zero parts are omitted
 # durations < 1 minute are suffixed with "s" or "ms"
 _PROMPT_HRTIME() {
-  local tv=$1 ts=""
-  local hourval=0 minval=0 secval=0 msval=0
-  local hour minute second
-  ((second = 1000))
+  local hourval minval secval msval=$1
+  local second=1000 minute hour
   ((minute = second * 60))
   ((hour = minute * 60))
 
-  ((tv >= hour)) && ((hourval = tv / hour, tv %= hour))
-  ((tv >= minute)) && ((minval = tv / minute, tv %= minute))
-  ((tv >= second)) && ((secval = tv / second, tv %= second))
-  ((tv >= 0)) && ((msval = tv))
+  ((hourval = msval / hour, msval %= hour))
+  ((minval = msval / minute, msval %= minute))
+  ((secval = msval / second, msval %= second))
 
-  (($hourval)) && printf "%d:%02d:%02d.%03d" $hourval $minval $secval $msval && return
-  (($minval)) && printf "%02d:%02d.%03d" $minval $secval $msval && return
-  (($secval)) && printf "%d.%03ds" $secval $msval && return
+  ((hourval)) && printf "%d:%02d:%02d.%03d" $hourval $minval $secval $msval && return
+  ((minval)) && printf "%02d:%02d.%03d" $minval $secval $msval && return
+  ((secval)) && printf "%d.%03ds" $secval $msval && return
   printf "%dms" $msval && return
 }
 
 PROMPT_COMMAND="_PROMPT_COMMAND"
 trap "_PROMPT_PREEXEC" DEBUG
+_PROMPT_TIMER=

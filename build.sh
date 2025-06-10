@@ -10,7 +10,6 @@ rsync -Rrlv \
   $HH/.config/i3/ \ \
   $HH/.config/fastfetch/ \
   $HH/.config/tilda/ \
-  $HH/.config/smplayer/smplayer.ini \
   $HH/.vim \
   $HH/.vimrc \
   $HH/.tmux.conf \
