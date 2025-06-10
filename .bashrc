@@ -56,6 +56,9 @@ source ~/.bashrc.prompt
 alias vim='nvim'
 alias gl='git log --graph --pretty="%Cgreen%h %Cblue%cr %Cred%an: %Creset%s"'
 alias vea='. venv/bin/activate'
+bad() {
+  return $1
+}
 
 if command -v xsel > /dev/null; then
   alias cb="xsel -ib"

@@ -64,7 +64,8 @@ _PROMPT_COMMAND() {
   local prompt_mtime=$(($(date +%s%N) / 1000000))
   local sections=()
 
-  if ((_PROMPT_EXEC_START != 0)); then
+
+  if [[ ! -z "$_PROMPT_TIMER" ]] && ((_PROMPT_EXEC_START != 0)); then
     local dur=$((prompt_mtime - _PROMPT_EXEC_START))
     sections+=(0 34 0 "$(_PROMPT_HRTIME $dur)")
     
@@ -82,18 +83,26 @@ _PROMPT_COMMAND() {
   sections+=(0 87 2 "$(date '+%-l:%M%P')")
 
 	# status line working directory
-  IFS=$'\n' local dirparts=($(dirs +0 | tr '/' '\n'))
+  sections+=(0 45 1 "$(dirs +0)")
+  #IFS=$'\n' local dirparts=($(dirs +0 | tr '/' '\n'))
 
-  if [[ "${dirparts[0]}" = "" ]]; then
-    sections+=(0 45 1 " /")
-  else
-    sections+=(0 45 1 " ${dirparts[0]}")
+  #if [[ "${dirparts[0]}" = "" ]]; then
+  #  sections+=(0 45 1 " /")
+  #else
+  #  sections+=(0 45 1 " ${dirparts[0]}")
+  #fi
+
+
+  #for ((i = 1; i < ${#dirparts[@]}; i++)); do
+  #  sections+=(25 45 0 "/")
+  #  sections+=(0 45 0 "${dirparts[i]}")
+  #done
+
+  # non-zero exit code (timer disabled)
+  if [[ -z "$_PROMPT_TIMER" ]] && ((exit > 0)); then
+    sections+=(-1 -1 1 " ")
+    sections+=(0 160 2 "$exit")
   fi
-
-  for ((i = 1; i < ${#dirparts[@]}; i++)); do
-    sections+=(25 45 0 "\ue0b1")
-    sections+=(0 45 0 "${dirparts[i]}")
-  done
 
 	# fun fact: "local" has an exit code
 	local git_status
@@ -120,7 +129,7 @@ _PROMPT_COMMAND() {
   # line break, command count, user@host
   sections+=(-1 -1 1 "\n")
   sections+=(0 87 2 "#\#")
-  sections+=(0 39 1 " \u@\h")
+  sections+=(0 39 1 "\u@\h")
 
 
   # previous exit code (if applicable), command prompt
@@ -131,8 +140,8 @@ _PROMPT_COMMAND() {
   local prompt="$(_PROMPT_RENDER "${sections[@]}")"
   PS1="$(echo -e "${title_reset}${prompt}")"
 
-  history -a
-  history -n
+  history -a 2>/dev/null
+  history -n 2>/dev/null
 
   _PROMPT_PREEXEC_READY=1
   _PROMPT_EXEC_START=0
@@ -142,11 +151,14 @@ _PROMPT_PREEXEC_READY=0
 _PROMPT_EXEC_START=0
 _PROMPT_EXEC_CURRENT=0
 
+# WARNING! THIS IS NOT ACCURATE IF PROCESSES DO NOT EXIT IN THE ORDER THEY WERE STARTED
 _PROMPT_PREEXEC() {
   local exit=$?
   ((_PROMPT_PREEXEC_READY == 0)) && return
   [[ "$BASH_COMMAND" == "_PROMPT_COMMAND" ]] && return
   echo -ne "\033]0;$BASH_COMMAND $USER@${HOSTNAME} $(pwd)\007"
+
+  [[ -z "$_PROMPT_TIMER" ]] && return
 
   if ((_PROMPT_EXEC_START == 0)); then
     _PROMPT_EXEC_START=$(($(date +%s%N) / 1000000))
@@ -163,6 +175,10 @@ _PROMPT_PREEXEC() {
   fi
 }
 
+# Returns a human-readable duration for a given duration in milliseconds
+# HH:MM:SS.MMM
+# zero parts are omitted
+# durations < 1 minute are suffixed with "s" or "ms"
 _PROMPT_HRTIME() {
   local tv=$1 ts=""
   local hourval=0 minval=0 secval=0 msval=0
@@ -181,7 +197,6 @@ _PROMPT_HRTIME() {
   (($secval)) && printf "%d.%03ds" $secval $msval && return
   printf "%dms" $msval && return
 }
-
 
 PROMPT_COMMAND="_PROMPT_COMMAND"
 trap "_PROMPT_PREEXEC" DEBUG
