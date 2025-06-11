@@ -20,6 +20,7 @@ rsync -Rrlv \
   $HH/bin/open-webui \
   $HH/bin/i3status.py \
   $HH/bin/scexpose \
+  $HH/Pictures/Wallpapers \
   "$(dirname $(readlink -f "$0"))"
 
 mkdir -p repos/
