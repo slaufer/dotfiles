@@ -67,7 +67,6 @@ elif command -v xclip > /dev/null; then
 fi
 
 alias chatgpt='llmcli -p openai -o model=chatgpt-4o-latest'
-alias claude='llmcli -p anthropic -o model=claude-3-7-sonnet-latest'
 alias mistral-nemo='llmcli -p ollama -o model=mistral-nemo2'
 alias gemma='llmcli -p ollama -o model=gemma3:27b'
 alias deepseek='llmcli -p ollama -o model=deepseek-r1:32b'

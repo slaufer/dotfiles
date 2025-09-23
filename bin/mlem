@@ -1,0 +1,30 @@
+#!/bin/bash
+
+[[ -z "$MLEM_CONV" ]] && MLEM_CONV="mlem_conversation"
+[[ -z "$MLEM_HOME" ]] && MLEM_HOME="$HOME/.mlem"
+[[ -z "$MLEM_MODEL" ]] && MLEM_MODEL="llama4"
+
+convfile="${MLEM_HOME}/${MLEM_CONV}.json"
+[[ ! -f "$convfile" ]] && echo "[]" > "$convfile"
+
+convdata="$(jq --arg user "$*" '. += [{"role":"user","content":$user}]' "$convfile")"
+[[ -z "$convdata" ]] && echo "Error loading ${convfile}" && exit 1
+
+
+tmpfile="$(mktemp -p "$MLEM_HOME")"
+if ! stdbuf -o0 \
+  curl "http://localhost:11434/api/chat" \
+  -s \
+  -XPOST \
+  --data "{\"model\":\"${MLEM_MODEL}\",\"messages\":${convdata}}" \
+  | stdbuf -o0 jq -j -r '.message.content' \
+  | tee "$tmpfile"
+then
+  rm -f "$tmpfile"
+  exit 1
+fi
+
+jq --arg assistant "$(cat "$tmpfile")" '. += [{"role":"assistant","content":$assistant}]' <<< "$convdata" > "$convfile"
+rm -f "$tmpfile"
+echo
+

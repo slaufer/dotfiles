@@ -9,7 +9,6 @@ rsync -Rrlv \
   $HH/.config/btop/ \
   $HH/.config/i3/ \ \
   $HH/.config/fastfetch/ \
-  $HH/.config/tilda/ \
   $HH/.vim \
   $HH/.vimrc \
   $HH/.tmux.conf \
@@ -18,8 +17,9 @@ rsync -Rrlv \
   $HH/bin/colordemo.sh \
   $HH/bin/sensorzz \
   $HH/bin/open-webui \
-  $HH/bin/i3status.py \
   $HH/bin/scexpose \
+  $HH/bin/setup_monitors.sh \
+  $HH/bin/mlem \
   $HH/Pictures/Wallpapers \
   "$(dirname $(readlink -f "$0"))"
 

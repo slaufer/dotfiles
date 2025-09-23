@@ -1,9 +1,23 @@
+MANUAL INSTALL:
+Firefox
+Chrome/Chromium
+SDKMAN!
+NVM
+Docker
+btop
+---------
+alacritty
+audacity
 build-essential
 curl
 fastfetch
 feh
+ffmpeg
+ffmpeg-thumbnailer
+gimp
 htop
 i3
+jq
 less
 neovim
 nmap
@@ -17,6 +31,7 @@ smplayer
 socat
 scrot
 silversearcher-ag
+sqlite3
 tmux
 tree
 unar
