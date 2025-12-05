@@ -1,21 +1,13 @@
 #!/bin/bash
-#exec gnome-session
-
-# configure monitors
 setup_monitors.sh
-
-# enable ctrl+alt+bksp
+cache_in_tmp.sh
 setxkbmap -option terminate:ctrl_alt_bksp
-
-# start dbus
-eval $(dbus-launch --sh-syntax)
-
-# set wallpaper
+setxkbmap -option compose:caps
+lxpolkit &
 feh --bg-fill ~/Pictures/Wallpapers/indianhead_test_4.png
-
-# start systray apps
 nm-applet &
 blueman-applet &
-# pasystray &
-
-exec i3
+pasystray &
+# eval $(dbus-launch --sh-syntax --exit-with-x11)
+# exec i3
+exec dbus-launch --exit-with-session i3

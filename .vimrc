@@ -50,6 +50,10 @@ set listchars=tab:\|\ ,trail:~,extends:>,precedes:<
 set scrolloff=5
 set colorcolumn=121
 set conceallevel=1
+set viminfo=
+set noswapfile
+set nobackup
+set undodir=
 syntax on
 
 """""""""""""""""""

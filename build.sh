@@ -19,8 +19,9 @@ rsync -Rrlv \
   $HH/bin/open-webui \
   $HH/bin/scexpose \
   $HH/bin/setup_monitors.sh \
+  $HH/bin/cache_in_tmp.sh \
   $HH/bin/mlem \
-  $HH/Pictures/Wallpapers \
+  $HH/Pictures/Wallpapers/dandadan_momo1.jpg \
   "$(dirname $(readlink -f "$0"))"
 
 mkdir -p repos/

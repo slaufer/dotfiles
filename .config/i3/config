@@ -81,7 +81,7 @@ bindsym $mod+Shift+minus move scratchpad
 # If there are multiple scratchpad windows, this command cycles through them.
 bindsym $mod+minus scratchpad show
 
-bindsym $mod+Shift+t mark sp_term; move scratchpad
+bindsym $mod+Shift+t mark sp_term; border pixel 1; move scratchpad
 bindsym $mod+t [con_mark="sp_term"] scratchpad show, resize set 900 910, move position center
 
 bindsym $mod+Shift+m mark sp_notes; move scratchpad
@@ -120,6 +120,10 @@ bindsym $mod+Mod1+Shift+$right move workspace to output right
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r exec i3 restart
+
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -180,3 +184,6 @@ client.urgent           #00d7ff #00d7ff #000000 #00d7ff   #00d7ff
 client.placeholder      #ff0000 #ff0000 #00ffff #000000   #ff0000
 
 client.background       #ff0000
+
+default_border pixel 1
+default_floating_border pixel 1
