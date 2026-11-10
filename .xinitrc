@@ -4,6 +4,8 @@ cache_in_tmp.sh
 setxkbmap -option terminate:ctrl_alt_bksp
 lxpolkit &
 feh --bg-fill ~/Pictures/Wallpapers/indianhead_test_4.png
+nm-applet &
+blueman-applet &
 # nm-applet &
 # blueman-applet &
 # pasystray &
