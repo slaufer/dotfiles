@@ -1,0 +1,22 @@
+! i3 colors for redshift (F11/F12): only red-channel brightness survives
+i3wm.focused_bg:         #870000
+i3wm.focused_text:       #ffd7af
+i3wm.focused_title_text: #ffd7af
+i3wm.focused_indicator:  #ffaf00
+i3wm.active_bg:          #3a0000
+i3wm.active_text:        #d7af87
+i3wm.inactive_bg:        #000000
+i3wm.inactive_text:      #875f5f
+i3wm.urgent_bg:          #ffaf00
+i3wm.urgent_text:        #000000
+
+! i3status.py
+i3status.label_fg:       #d7875f
+i3status.light_fg:       #ffd7af
+i3status.dark_fg:        #000000
+i3status.bright:         #ffaf00
+i3status.mid:            #af2800
+i3status.dark:           #5f0000
+i3status.rx:             #ffd787
+i3status.tx:             #af3c00
+i3status.idle:           #5f2800

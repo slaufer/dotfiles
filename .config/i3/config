@@ -27,9 +27,21 @@ bindsym $mod+b exec firefox
 bindsym $mod+p exec xdg-open $HOME
 
 # color temp stuff
-bindsym $mod+F10 exec --no-startup-id redshift -x
-bindsym $mod+F11 exec --no-startup-id redshift -P -O 2500 -b 0.9
-bindsym $mod+F12 exec --no-startup-id redshift -P -O 1000 -b 0.7
+bindsym $mod+F10 exec --no-startup-id "redshift -x; xrdb -nocpp -merge ~/.config/i3/colors-default.Xresources; i3-msg reload"
+bindsym $mod+F11 exec --no-startup-id "redshift -P -O 2500 -b 0.9; xrdb -nocpp -merge ~/.config/i3/colors-reds.Xresources; i3-msg reload"
+bindsym $mod+F12 exec --no-startup-id "redshift -P -O 1000 -b 0.7; xrdb -nocpp -merge ~/.config/i3/colors-reds.Xresources; i3-msg reload"
+
+# colors: read from X resources (loaded by the keys above), defaulting to these
+set_from_resource $focused_bg         i3wm.focused_bg         #002f5f
+set_from_resource $focused_text       i3wm.focused_text       #00d7ff
+set_from_resource $focused_title_text i3wm.focused_title_text #5fffff
+set_from_resource $focused_indicator  i3wm.focused_indicator  #006666
+set_from_resource $active_bg          i3wm.active_bg          #002040
+set_from_resource $active_text        i3wm.active_text        #888888
+set_from_resource $inactive_bg        i3wm.inactive_bg        #111111
+set_from_resource $inactive_text      i3wm.inactive_text      #888888
+set_from_resource $urgent_bg          i3wm.urgent_bg          #00d7ff
+set_from_resource $urgent_text        i3wm.urgent_text        #000000
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -187,10 +199,10 @@ bar {
 
   colors {
     # class             border  backgr. text
-    focused_workspace   #002f5f #002f5f #00d7ff
-    active_workspace    #002040 #002040 #888888
-    inactive_workspace  #111111 #111111 #888888
-    urgent_workspace    #00d7ff #00d7ff #000000
+    focused_workspace   $focused_bg  $focused_bg  $focused_text
+    active_workspace    $active_bg   $active_bg   $active_text
+    inactive_workspace  $inactive_bg $inactive_bg $inactive_text
+    urgent_workspace    $urgent_bg   $urgent_bg   $urgent_text
   }
 
   tray_output none
@@ -202,10 +214,10 @@ bar {
 
   colors {
     # class             border  backgr. text
-    focused_workspace   #002f5f #002f5f #00d7ff
-    active_workspace    #002040 #002040 #888888
-    inactive_workspace  #111111 #111111 #888888
-    urgent_workspace    #00d7ff #00d7ff #000000
+    focused_workspace   $focused_bg  $focused_bg  $focused_text
+    active_workspace    $active_bg   $active_bg   $active_text
+    inactive_workspace  $inactive_bg $inactive_bg $inactive_text
+    urgent_workspace    $urgent_bg   $urgent_bg   $urgent_text
   }
 
   tray_output DP-0
@@ -218,20 +230,20 @@ bar {
 
   colors {
     # class             border  backgr. text
-    focused_workspace   #002f5f #002f5f #00d7ff
-    active_workspace    #002040 #002040 #888888
-    inactive_workspace  #111111 #111111 #888888
-    urgent_workspace    #00d7ff #00d7ff #000000
+    focused_workspace   $focused_bg  $focused_bg  $focused_text
+    active_workspace    $active_bg   $active_bg   $active_text
+    inactive_workspace  $inactive_bg $inactive_bg $inactive_text
+    urgent_workspace    $urgent_bg   $urgent_bg   $urgent_text
   }
 
   tray_output none
 }
 
 # class                 border  backgr. text    indicator child_border
-client.focused          #002f5f #002f5f #5fffff #006666   #002f5f
-client.focused_inactive #002040 #002040 #888888 #111111   #111111
-client.unfocused        #111111 #111111 #888888 #111111   #111111
-client.urgent           #00d7ff #00d7ff #000000 #00d7ff   #00d7ff
+client.focused          $focused_bg  $focused_bg  $focused_title_text $focused_indicator $focused_bg
+client.focused_inactive $active_bg   $active_bg   $active_text        $inactive_bg       $inactive_bg
+client.unfocused        $inactive_bg $inactive_bg $inactive_text      $inactive_bg       $inactive_bg
+client.urgent           $urgent_bg   $urgent_bg   $urgent_text        $urgent_bg         $urgent_bg
 client.placeholder      #ff0000 #ff0000 #00ffff #000000   #ff0000
 
 client.background       #ff0000

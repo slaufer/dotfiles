@@ -1,0 +1,21 @@
+i3wm.focused_bg:         #002f5f
+i3wm.focused_text:       #00d7ff
+i3wm.focused_title_text: #5fffff
+i3wm.focused_indicator:  #006666
+i3wm.active_bg:          #002040
+i3wm.active_text:        #888888
+i3wm.inactive_bg:        #111111
+i3wm.inactive_text:      #888888
+i3wm.urgent_bg:          #00d7ff
+i3wm.urgent_text:        #000000
+
+! i3status.py
+i3status.label_fg:       #00afff
+i3status.light_fg:       #aaffff
+i3status.dark_fg:        #000000
+i3status.bright:         #5fffff
+i3status.mid:            #00afff
+i3status.dark:           #002f5f
+i3status.rx:             #66ff66
+i3status.tx:             #ff6666
+i3status.idle:           #606060
