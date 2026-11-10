@@ -80,3 +80,4 @@ export PATH="/home/slaufer/.npm-global/bin:$PATH"
 
 cache_in_tmp.sh > /dev/null
 
+source ~/repos/reds/bash/reds.sh

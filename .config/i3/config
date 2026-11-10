@@ -27,9 +27,9 @@ bindsym $mod+b exec firefox
 bindsym $mod+p exec xdg-open $HOME
 
 # color temp stuff
-bindsym $mod+F10 exec --no-startup-id "redshift -x; xrdb -nocpp -merge ~/.config/i3/colors-default.Xresources; i3-msg reload"
-bindsym $mod+F11 exec --no-startup-id "redshift -P -O 2500 -b 0.9; xrdb -nocpp -merge ~/.config/i3/colors-reds.Xresources; i3-msg reload"
-bindsym $mod+F12 exec --no-startup-id "redshift -P -O 1000 -b 0.7; xrdb -nocpp -merge ~/.config/i3/colors-reds.Xresources; i3-msg reload"
+bindsym $mod+F10 exec --no-startup-id "redshift -x; xrdb -nocpp -merge ~/.config/i3/colors-default.Xresources; tmux source-file ~/.tmux.conf; i3-msg reload"
+bindsym $mod+F11 exec --no-startup-id "redshift -P -O 2500 -b 0.9; xrdb -nocpp -merge ~/.config/i3/colors-reds.Xresources; tmux source-file ~/.tmux.reds.conf; i3-msg reload"
+bindsym $mod+F12 exec --no-startup-id "redshift -P -O 1000 -b 0.7; xrdb -nocpp -merge ~/.config/i3/colors-reds.Xresources; tmux source-file ~/.tmux.reds.conf; i3-msg reload"
 
 # colors: read from X resources (loaded by the keys above), defaulting to these
 set_from_resource $focused_bg         i3wm.focused_bg         #002f5f
